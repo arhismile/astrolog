@@ -1,0 +1,1338 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Векторная карта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Symbols+2&family=Noto+Sans+Symbols&display=swap" rel="stylesheet">
+<style>
+/* Layout: космос — тёмная полоса-обложка с сиянием горизонта планеты, ниже разбор на глубоком тёмном небе с белыми карточками; на фоне полупрозрачные знаки систем, которые использует расчёт. Тёмная тема первична. */
+:root{--paper:#04070F;--sheet:#0B1222;--ink:#F2F5FA;--ink2:#B7C1D2;--ink3:#7E8AA0;--rule:#18213A;--rule2:#26314D;--accent:#4A8DFF;--accent-soft:#0F1C38;--brass:#7FD3FF;--brass-soft:#0D2234;--good:#4ED39A;--warn:#F0A95A;--bad:#FF7F75;--v-zv:#A99FF6;--v-zr:#6FD6C2;--v-ob:#CDA0E4;--v-or:#F0A86C;--v-an:#D9B878;--v-ko:#82B7EA;--v-my:#AAB7BE;--v-ur:#F08A8A;--glyph:#9DB7E8;color-scheme:dark;
+  --f-display:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--f-italic:'Manrope',system-ui,sans-serif;--f-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;--f-mono:'JetBrains Mono',ui-monospace,Menlo,monospace;--f-sym:'Noto Sans Symbols 2','Noto Sans Symbols','Segoe UI Symbol','DejaVu Sans',sans-serif}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--paper:#EDF1F7;--sheet:#FFFFFF;--ink:#0D1424;--ink2:#3F4A5E;--ink3:#727D90;--rule:#DCE2EB;--rule2:#C5CDDA;--accent:#1F5FD6;--accent-soft:#E4ECFB;--brass:#1A6FA8;--brass-soft:#E1EFF9;--good:#1E7A51;--warn:#A9661B;--bad:#B3392C;--v-zv:#5148B0;--v-zr:#1F7D60;--v-ob:#7E3F92;--v-or:#B8601F;--v-an:#7F5E22;--v-ko:#2F6EA3;--v-my:#53616A;--v-ur:#B32F3A;--glyph:#3B5B96;color-scheme:light}}
+:root[data-theme="light"]{--paper:#EDF1F7;--sheet:#FFFFFF;--ink:#0D1424;--ink2:#3F4A5E;--ink3:#727D90;--rule:#DCE2EB;--rule2:#C5CDDA;--accent:#1F5FD6;--accent-soft:#E4ECFB;--brass:#1A6FA8;--brass-soft:#E1EFF9;--good:#1E7A51;--warn:#A9661B;--bad:#B3392C;--v-zv:#5148B0;--v-zr:#1F7D60;--v-ob:#7E3F92;--v-or:#B8601F;--v-an:#7F5E22;--v-ko:#2F6EA3;--v-my:#53616A;--v-ur:#B32F3A;--glyph:#3B5B96;color-scheme:light}
+:root[data-theme="dark"]{--paper:#04070F;--sheet:#0B1222;--ink:#F2F5FA;--ink2:#B7C1D2;--ink3:#7E8AA0;--rule:#18213A;--rule2:#26314D;--accent:#4A8DFF;--accent-soft:#0F1C38;--brass:#7FD3FF;--brass-soft:#0D2234;--good:#4ED39A;--warn:#F0A95A;--bad:#FF7F75;--v-zv:#A99FF6;--v-zr:#6FD6C2;--v-ob:#CDA0E4;--v-or:#F0A86C;--v-an:#D9B878;--v-ko:#82B7EA;--v-my:#AAB7BE;--v-ur:#F08A8A;--glyph:#9DB7E8;color-scheme:dark}
+.sheet,.card,.snd,.ai{--sheet:#FFFFFF;--paper:#F1F4F9;--ink:#0D1424;--ink2:#3F4A5E;--ink3:#727D90;--rule:#E2E7EE;--rule2:#CBD2DD;--accent:#1F5FD6;--accent-soft:#E6EEFC;--brass:#1A6FA8;--brass-soft:#E1EFF9;--good:#1E7A51;--warn:#A9661B;--bad:#B3392C;--v-zv:#5148B0;--v-zr:#1F7D60;--v-ob:#7E3F92;--v-or:#B8601F;--v-an:#7F5E22;--v-ko:#2F6EA3;--v-my:#53616A;--v-ur:#B32F3A;color-scheme:light}
+.mast{--paper:#04070F;--sheet:#0B1222;--ink:#F2F5FA;--ink2:#B7C1D2;--ink3:#7E8AA0;--rule:#18213A;--rule2:#26314D;--accent:#4A8DFF;--accent-soft:#0F1C38;--brass:#7FD3FF;--brass-soft:#0D2234;--good:#4ED39A;--warn:#F0A95A;--bad:#FF7F75;--v-zv:#A99FF6;--v-zr:#6FD6C2;--v-ob:#CDA0E4;--v-or:#F0A86C;--v-an:#D9B878;--v-ko:#82B7EA;--v-my:#AAB7BE;--v-ur:#F08A8A;--glyph:#9DB7E8;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.lv:has(+.gkl){border-bottom:0;padding-bottom:4px}.gkl{margin:0 0 0 166px;padding:4px 12px 12px;border-left:3px solid var(--rule);box-shadow:0 1px 0 var(--rule);font-size:14px;line-height:1.5}.gkl .gkn{font-weight:600}.gkt td,.gkt th{vertical-align:top}.gkt .gkseq{text-align:left;padding-top:14px;font-weight:600}@media(max-width:640px){.gkl{margin-left:0}}.mxw{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}.mxp{margin:0 0 8px}@media(max-width:640px){.mxw{grid-template-columns:1fr}.mxw svg{margin:auto;display:block}}
+body{background:var(--paper);color:var(--ink);font:15.5px/1.65 var(--f-body);margin:0}
+.wrap{max-width:900px;margin:0 auto;padding-inline:16px;padding-block:28px 80px}
+h1{font:600 clamp(32px,6vw,46px)/1.05 var(--f-display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 26px/1.2 var(--f-display);margin:38px 0 10px;text-wrap:balance}
+h3{font:600 16px/1.35 var(--f-body);margin:18px 0 6px}
+p{margin:8px 0}
+.eyebrow{font:500 11.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.lead{color:var(--ink2);font-size:16.5px;max-width:64ch}
+.small{font-size:13px;color:var(--ink3)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+/* form */
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:18px 20px;margin-top:20px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px 14px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label{font:500 12px var(--f-body);color:var(--ink2)}
+.f input,.f select{font:15px var(--f-body);color:var(--ink);background:var(--paper);border:1px solid var(--rule2);border-radius:8px;padding:8px 10px;min-width:0;width:100%}
+.f input:focus,.f select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c6{grid-column:span 6}
+@media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr)}.c2,.c3{grid-column:span 1}.c6,.wide{grid-column:span 2}}
+.legend-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+button.go{font:600 15px var(--f-body);background:var(--accent);color:var(--sheet);border:0;border-radius:8px;padding:10px 20px;cursor:pointer}
+button.go:hover{filter:brightness(1.08)}button.go:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+button.go[disabled]{opacity:.6;cursor:wait}
+.hint{font-size:12.5px;color:var(--ink3);line-height:1.5}
+details.sub{margin-top:12px;border-top:1px dashed var(--rule2);padding-top:10px}
+details.sub summary{cursor:pointer;font:500 13.5px var(--f-body);color:var(--ink2)}
+/* results */
+.example{display:inline-block;font:500 12px var(--f-mono);background:var(--brass-soft);color:var(--brass);padding:3px 9px;border-radius:6px;margin-bottom:8px}
+.head{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;margin-top:30px;padding-bottom:12px;border-bottom:1px solid var(--rule2)}
+.head .who{font:600 30px var(--f-display)}
+.head .meta{font:13px var(--f-mono);color:var(--ink3)}
+.portrait{font:500 italic 21px/1.5 var(--f-display);margin:20px 0 6px;padding-left:16px;border-left:3px solid var(--brass)}
+.vt{width:100%;border-collapse:collapse}
+.vt th{font:500 11px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);text-align:left;padding:8px 6px;border-bottom:1px solid var(--rule2)}
+.vt td{padding:9px 6px;border-bottom:1px solid var(--rule);vertical-align:middle}
+.vt .vn{font-weight:600;white-space:nowrap}
+.cell{display:flex;flex-direction:column;gap:3px}
+.bar{height:7px;border-radius:4px;background:var(--rule);position:relative;max-width:220px}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:4px;background:currentColor}
+.bar:after{content:'';position:absolute;left:50%;top:-3px;bottom:-3px;border-left:1px dashed var(--ink3)}
+.facts{display:grid;grid-template-columns:120px 1fr;gap:4px 14px;margin:6px 0 0;font-size:14.5px}
+.facts dt{color:var(--ink3);font-size:13px}.facts dd{margin:0;color:var(--ink2)}
+@media(max-width:640px){.facts{grid-template-columns:1fr}.facts dt{margin-top:6px}}
+.ct{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+.ct th,.ct td{padding:8px;border-bottom:1px solid var(--rule);vertical-align:top;text-align:left}
+.ct tr>th:first-child{font:500 12px var(--f-body);color:var(--ink3);width:110px}
+.ct tr:first-child th{font:600 14px var(--f-body);color:var(--ink)}
+.sum{background:var(--accent-soft);border-radius:8px;padding:12px 14px;font-size:15px;line-height:1.6;margin:10px 0 0}
+.cv{padding:16px 0 20px;border-bottom:1px solid var(--rule2)}
+.cv h3{font:600 22px var(--f-display);margin:0 0 4px}
+.pill{display:inline-block;font:500 11.5px var(--f-body);padding:1px 8px;border-radius:20px;white-space:nowrap}
+.l5{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+.l4{background:color-mix(in srgb,var(--good) 11%,transparent);color:var(--good)}
+.l3{background:color-mix(in srgb,var(--ink3) 18%,transparent);color:var(--ink2)}
+.l2{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.l1{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.num{font:12px var(--f-mono);color:var(--ink3)}
+.tw{overflow-x:auto}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px 20px;margin:12px 0}
+.lv{display:grid;grid-template-columns:150px 1fr 1fr;gap:6px 16px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.lv:last-child{border-bottom:0}
+@media(max-width:640px){.lv{grid-template-columns:1fr}}
+.rungs{display:flex;gap:3px;margin:3px 0 5px;max-width:200px}
+.rungs span{flex:1;height:6px;border-radius:2px;background:var(--rule)}
+.rungs .c{background:var(--good)}.rungs .k{background:var(--bad)}
+.lname{font-weight:600}
+.why{font:12px/1.5 var(--f-mono);color:var(--ink3);margin-top:3px}
+.vec{border-top:2px solid;padding-top:12px;margin-top:22px}
+.vec h3{font:600 23px var(--f-display);margin:0 0 4px}
+.vg{display:grid;grid-template-columns:1fr 1fr;gap:4px 22px;font-size:14.5px}
+@media(max-width:640px){.vg{grid-template-columns:1fr}}
+.vg b{display:block;font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+@media(max-width:640px){.steps{grid-template-columns:1fr 1fr}}
+.steps div{background:var(--paper);border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.45}
+.steps div b{display:block;font:600 10.5px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--ink3)}
+.asp{padding:11px 0;border-bottom:1px solid var(--rule)}
+.asp:last-child{border-bottom:0}
+.asp .t{font-weight:600}
+.asp .o{font:12px var(--f-mono);color:var(--brass);margin-left:6px}
+.asp p{margin:3px 0 0;color:var(--ink2);font-size:14.5px}
+.pt{width:100%;border-collapse:collapse;font-size:14px}
+.pt td,.pt th{padding:7px 6px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
+.pt th{font:500 11px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--ink3)}
+.good{color:var(--good)}.bad{color:var(--bad)}
+.note{background:var(--accent-soft);border-radius:10px;padding:12px 16px;font-size:14px;margin:14px 0}
+.busy{display:flex;align-items:center;gap:10px;color:var(--ink2);margin-top:24px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:p 1s infinite alternate}
+@keyframes p{from{opacity:.3}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+.err{color:var(--bad);margin-top:12px;font-size:14px}
+.sig{border-top:2px solid;padding-top:12px;margin-top:20px}
+.sig .sh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.sig .sn{font:600 22px var(--f-display)}
+.arche{font:600 13px var(--f-body);padding:2px 10px;border-radius:20px;background:var(--brass-soft);color:var(--brass)}
+.code{font:12.5px var(--f-mono);color:var(--ink3);margin:4px 0 2px}
+.carrier{padding:10px 0;border-bottom:1px dashed var(--rule)}
+.carrier:last-child{border-bottom:0}
+.carrier p{margin:4px 0 0;font-size:14.5px;color:var(--ink2)}
+.alt{font-size:13px;color:var(--ink3);margin-top:6px}
+details.more{margin-top:14px}details.more summary{cursor:pointer;font-weight:600;color:var(--ink2)}
+.ptabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:28px;border-bottom:1px solid var(--rule2)}
+.ptab{font:500 14px var(--f-body);background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;color:var(--ink3);cursor:pointer;margin-bottom:-1px}
+.ptab[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.ptab:focus-visible{outline:2px solid var(--accent)}
+.cmp{display:grid;grid-template-columns:150px 1fr 1fr;gap:6px 16px;padding:14px 0;border-bottom:1px solid var(--rule)}
+@media(max-width:640px){.cmp{grid-template-columns:1fr}}
+.cmp .diff{grid-column:1/-1;font-size:14.5px;color:var(--ink2);background:var(--accent-soft);border-radius:8px;padding:8px 12px}
+.seg{display:inline-flex;margin-top:26px;border:1px solid var(--rule2);border-radius:10px;overflow:hidden;background:var(--sheet)}
+.seg button{font:500 14px var(--f-body);border:0;background:none;color:var(--ink2);padding:8px 16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--sheet)}
+.seg button:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
+.reloc{border-color:var(--accent)}
+ul.rl{margin:4px 0 8px;padding-left:20px;font-size:14.5px;color:var(--ink2)}ul.rl li{margin:3px 0}
+.snd{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;margin:10px 0}
+.sbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.play{font:500 14px var(--f-body);background:var(--accent);color:var(--sheet);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+.play.ghost{background:none;color:var(--ink2);border:1px solid var(--rule2)}
+.play.mini{font-size:12px;padding:3px 10px;background:var(--accent-soft);color:var(--accent);border-radius:20px}
+.play:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.sgrid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+@media(max-width:700px){.sgrid{grid-template-columns:1fr}}
+.wwrap{min-width:0}.wheel{width:100%;max-width:300px;display:block;margin:0 auto}
+.wheel .wn{font:600 9.5px var(--f-body);fill:var(--ink2)}.wheel .wh{font:9px var(--f-mono);fill:var(--ink3)}.wheel .wl{font:500 8px var(--f-body);fill:var(--ink2)}
+.wheel .hl.on{stroke:var(--brass);stroke-width:2.5}.wheel .wh.on{fill:var(--brass);font-weight:700}.wheel .wp.on{fill:var(--brass);opacity:1}
+.sgrid p{margin:6px 0;font-size:14.5px;color:var(--ink2)}
+.ai{background:var(--brass-soft);border-radius:12px;padding:14px 18px;margin:14px 0}
+.aib{background:var(--brass)}.aiout{margin-top:6px}.aiout p{font-size:15px;line-height:1.65;margin:6px 0}.aiout h3{font:600 19px var(--f-display);margin:14px 0 4px}
+.tech{font:11.5px var(--f-mono);color:var(--ink3);white-space:normal}
+.theme{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));background:var(--sheet);border:1px solid var(--rule2);border-radius:20px;padding:5px 12px;font:12px var(--f-body);color:var(--ink2);cursor:pointer}
+
+/* ---- космос ---- */
+body{font:15.5px/1.7 var(--f-body);background:var(--paper)}
+#glyphs{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.wrap{position:relative;z-index:2}
+.mast{position:relative;z-index:0;padding:64px 16px 0;overflow:hidden;text-align:center;background:radial-gradient(ellipse 90% 60% at 50% 100%,#123a86 0%,#081a40 40%,#04070F 75%);color:var(--ink)}
+.mast .mi{max-width:900px;margin:0 auto;position:relative}
+.mast::after{content:"";display:block;position:relative;width:170%;max-width:2600px;margin:56px auto 0;left:50%;transform:translateX(-50%);aspect-ratio:7/1;border-radius:50% 50% 0 0/100% 100% 0 0;background:radial-gradient(ellipse 60% 120% at 50% 0%,#2465d0 0%,#0f2f6e 22%,#06122c 55%,#04070F 100%);box-shadow:0 -1px 0 rgba(170,225,255,.95),0 -8px 28px rgba(100,180,255,.8),0 -36px 110px rgba(60,130,255,.5)}
+.issue{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;font:500 12px var(--f-body);letter-spacing:.02em;color:var(--ink3);margin-bottom:22px}
+.mast .eyebrow{font:500 15px var(--f-body);letter-spacing:0;text-transform:none;color:var(--ink3);margin:0 0 10px}
+.mast h1{font:500 clamp(40px,7vw,68px)/1.08 var(--f-display);letter-spacing:-.02em;margin:0 auto;max-width:16ch}
+.mast .lead{max-width:62ch;margin:18px auto 0;color:var(--ink2);font:400 16.5px/1.6 var(--f-body)}
+.sheet{position:relative;margin-top:-120px;z-index:2;border-radius:4px;border:0;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sheet,.card,.snd,.ai{background:var(--sheet);color:var(--ink);border:0;border-radius:4px}
+.card,.snd,.ai{box-shadow:0 10px 30px rgba(0,0,0,.18)}
+h2{font:500 clamp(26px,3.6vw,36px)/1.15 var(--f-display);letter-spacing:-.015em;margin:56px 0 14px;text-wrap:balance}
+h3{font-family:var(--f-body);font-weight:600}
+.head .who{font:500 clamp(32px,5vw,46px)/1.05 var(--f-display);letter-spacing:-.02em}
+.portrait{font:400 19px/1.6 var(--f-body);border-left:2px solid var(--brass);padding-left:18px;color:var(--ink)}
+.cv h3,.vec h3,.sig .sn{font-family:var(--f-display);font-weight:600;letter-spacing:-.01em}
+.f label{font:500 12px var(--f-body);color:var(--ink2)}
+.f input,.f select{border-radius:4px}
+button.go,.play{border-radius:4px;font:600 14px var(--f-body);letter-spacing:0;text-transform:none;background:var(--accent);color:#fff;padding:11px 22px}
+.play{padding:8px 14px;font-size:13px}
+.play.ghost{background:none;color:var(--ink2);border:1px solid var(--rule2)}
+.play.mini{font-size:12px;padding:3px 10px;background:var(--accent-soft);color:var(--accent);border-radius:20px}
+.aib{background:var(--accent)}
+.arche{border-radius:20px;font:600 12px var(--f-body);background:var(--accent-soft);color:var(--accent);border:0}
+.ptab{font:500 14px var(--f-body)}
+.ptab[aria-selected="true"]{border-color:var(--brass)}
+.seg{border-radius:6px}.seg button[aria-pressed="true"]{color:#fff}
+.theme{border-radius:20px;background:var(--sheet);color:var(--ink2)}
+h2::before{content:none}
+.cath{display:flex;align-items:center;gap:14px;margin-bottom:12px}.cat{width:76px;height:76px;flex:none;color:var(--ink)}.catn{font:600 20px/1.2 var(--f-display);letter-spacing:-.01em}
+::selection{background:var(--accent);color:#fff}
+@media(max-width:640px){.mast{padding-top:40px}.mast::after{width:260%;aspect-ratio:5/1}.sheet{margin-top:-70px}}
+</style>
+
+<canvas id="glyphs" aria-hidden="true"></canvas>
+<header class="mast"><div class="mi">
+    <div class="issue"><span>Звёздное издание</span><span>СВП · Астрология · Дизайн человека · Генные ключи · Таро</span></div>
+    <div class="eyebrow">СВП × астрология · сознательное и бессознательное</div>
+    <h1>Векторная карта</h1>
+    <p class="lead">Введите дату, время и место рождения. Страница посчитает две карты — рождения («голова») и за 88° Солнца до рождения («тело») — и покажет, как устроен ваш собственный набор векторов, какие уровни даёт карта и через какие именно планеты, знаки, дома и связи проявляется каждый вектор.</p>
+  </div></header>
+<div class="wrap">
+
+  <form class="sheet" id="form" novalidate>
+    <div class="grid">
+      <div class="f c2"><label for="name">Имя</label><input id="name" autocomplete="off" placeholder="Как подписать результат"></div>
+      <div class="f c2"><label for="sex">Пол</label><select id="sex"><option value="">не указан</option><option value="f">женский</option><option value="m">мужской</option></select></div>
+      <div class="f c2"><label for="city">Город рождения</label><select id="city"></select></div>
+      <div class="f c2"><label for="date">Дата рождения</label><input id="date" type="date" required></div>
+      <div class="f c2"><label for="time">Время рождения</label><input id="time" type="time" required></div>
+      <div class="f c2"><label for="tz">Часовой пояс (UTC±)</label><select id="tz"></select></div>
+      <div class="c6 hint" id="tznote" style="color:var(--accent)"></div>
+      <div class="f c3"><label for="lat">Широта (север +, юг −)</label><input id="lat" inputmode="decimal" required></div>
+      <div class="f c3"><label for="lon">Долгота (восток +, запад −)</label><input id="lon" inputmode="decimal" required></div>
+    </div>
+    <p class="hint" style="margin-top:10px">Часовой пояс нужен тот, что действовал <b>в день рождения</b>, с летним временем: при выборе города из списка он определяется автоматически по исторической базе часовых поясов (например, Ичалки 7.05.1989 — UTC+4, Тараз 20.02.1975 — UTC+6). Для релокации пояс не нужен: момент рождения тот же, меняются только координаты. Без точного времени дома и Асцендент будут неверны, а векторы — приблизительны.</p>
+    <details class="sub" open><summary>Где вы живёте сейчас — релокация (необязательно)</summary>
+      <div class="grid" style="margin-top:10px">
+        <div class="f c2"><label for="rcity">Город</label><select id="rcity"></select></div>
+        <div class="f c2"><label for="rlat">Широта</label><input id="rlat" inputmode="decimal"></div>
+        <div class="f c2"><label for="rlon">Долгота</label><input id="rlon" inputmode="decimal"></div>
+      </div>
+      <p class="hint">Планеты и знаки остаются те же, а Асцендент, Середина неба и дома пересчитываются для этого места. После расчёта появится переключатель «Место рождения / Место проживания»: весь разбор — векторы, уровни, почерк, аспекты к углам — пересчитается под новое место.</p>
+    </details>
+    <div class="grid" style="margin-top:12px"><div class="f c3"><label for="sunf">Вес Солнца</label><select id="sunf"><option value="0.3" selected>центр личности (~30% веса карты)</option><option value="0.7">доминирует (~70%)</option><option value="0">наравне с другими личными планетами</option></select></div><div class="c3 hint" style="align-self:end">Разные школы по-разному оценивают роль Солнца. Можно переключить и сравнить — проценты пересчитаются с калибровкой под выбранный вес.</div></div>
+    <div id="more-people"></div>
+    <div class="legend-row"><button class="go" id="go" type="submit">Рассчитать</button><span class="hint">Расчёт идёт в браузере, данные никуда не отправляются.</span></div>
+    <div class="err" id="err" hidden></div>
+  </form>
+
+  <div id="busy" class="busy" hidden><span class="dot"></span>Считаю карты…</div>
+  <div id="out"></div>
+
+  <h2>Как это считается</h2>
+  <div class="card">
+    <p><b>Две карты.</b> Карта рождения — то, как человек себя знает («голова»). Вторая карта строится на момент, когда Солнце было на 88° раньше (так считают в Дизайне Человека): это тело, автоматизмы, то, что другие видят раньше, чем сам человек.</p>
+    <p><b>Вес планет.</b> Солнце — центр личности: по умолчанию ему отдаётся около 30% веса карты (в форме можно выбрать 70% или наравне с другими). Асцендент и Середина неба сами дают векторы манерой своего знака, а их управители (хозяин карты и хозяин призвания) получают добавку. Личные планеты весят больше, высшие — только когда тесно связаны с личными или стоят на углу. Добавки за угол карты, вершину конфигурации (перст судьбы, тау-квадрат, парус) и точные аспекты к Солнцу, Луне, Асценденту, Середине неба. Вес делится между векторами по природе планеты, знаку (с учётом его управителя) и дому. Соединение сплавляет планеты: до 35% природы планеты (при точном соединении, меньше — при широком) окрашивается природой соседа.</p>
+    <p><b>Ваш профиль.</b> Векторы показаны как доли внутри одного человека (в сумме 100%), без сравнения с кем-либо. Внесена только поправка на устройство самой модели: Венера, Солнце и Луна есть в любой карте, и без поправки зрительный и уретральный вектор доставались бы всем в избытке. Ровный профиль — 12,5% на вектор.</p><p><b>Почерк.</b> Главное — не сколько вектора, а как он звучит. Каждый вектор разобран по проводникам: через какую планету он идёт, в каком знаке (манера), в каком доме (сфера жизни), с какими точными связями, на каком градусе и в каком слое. Каждая связь толкуется по своей паре планет: отдельно, когда они в гармонии, и когда в напряжении.</p>
+    <p><b>Точки и фигуры.</b> Парс Фортуны и Парс Духа — по дневной или ночной формуле (днём ASC + Луна − Солнце, ночью наоборот). Лилит и узлы — средние, истинные даны мелко в скобках. Вертекс — пересечение эклиптики с первым вертикалом на западе. Фигуры: перст судьбы, бумеранг, тау-квадрат, большой крест, большой тригон, малый тригон, парус, конверт, ладья, стеллиум.</p>
+    <p><b>Уровни.</b> Пятиступенчатая лестница по каждому вектору. Потолок — насколько высоко вектор может звучать «по праву рождения»: зависит от достоинства его планет (обитель, экзальтация) и положения у угла. Зона риска — куда вектор тянет в стрессе: зависит от напряжённых аспектов, слабых положений и Лилит. Где человек стоит сейчас, карта не показывает — это видно только по жизни.</p>
+    <p class="small"><b>Граница метода.</b> Соответствия астрологии и системно-векторной психологии — авторская модель, а не проверенная система. Веса подобраны по логике, а не выведены из данных о людях. Результат — то, что модель говорит о карте, а не диагноз; сверяйте с наблюдением за человеком.</p>
+  </div>
+</div>
+<button class="theme" id="theme" type="button">тема</button>
+
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script>
+// ===== Расчётное ядро: карта, дизайн, векторы =====
+var A=Astronomy;
+var VEC=["Звуковой","Зрительный","Обонятельный","Оральный","Анальный","Кожный","Мышечный","Уретральный"];
+var SIGNS=["Овен","Телец","Близнецы","Рак","Лев","Дева","Весы","Скорпион","Стрелец","Козерог","Водолей","Рыбы"];
+var SIGNS_P=["Овне","Тельце","Близнецах","Раке","Льве","Деве","Весах","Скорпионе","Стрельце","Козероге","Водолее","Рыбах"];
+var BODIES={"Солнце":"Sun","Луна":"Moon","Меркурий":"Mercury","Венера":"Venus","Марс":"Mars","Юпитер":"Jupiter","Сатурн":"Saturn","Уран":"Uranus","Нептун":"Neptune","Плутон":"Pluto"};
+var BASE={"Солнце":3,"Луна":3,"Меркурий":3,"Венера":3,"Марс":3,"Юпитер":2,"Сатурн":2,"Уран":1,"Нептун":1,"Плутон":1};
+var PERS=["Солнце","Луна","Меркурий","Венера","Марс"],OUTER=["Уран","Нептун","Плутон"];
+var SIGN_V0=[{"Мышечный":.5,"Уретральный":.5},{"Анальный":.5,"Мышечный":.5},{"Кожный":.5,"Оральный":.5},{"Зрительный":.5,"Анальный":.5},{"Уретральный":.5,"Оральный":.5},{"Анальный":.5,"Мышечный":.5},{"Зрительный":1/3,"Кожный":1/3,"Оральный":1/3},{"Звуковой":.5,"Обонятельный":.5},{"Звуковой":.5,"Уретральный":.5},{"Кожный":.5,"Обонятельный":.5},{"Звуковой":.5,"Обонятельный":.5},{"Зрительный":.6,"Звуковой":.4}];
+var PLANET_V={"Солнце":{"Уретральный":.6,"Оральный":.4},"Луна":{"Зрительный":.4,"Анальный":.6},"Меркурий":{"Кожный":.5,"Оральный":.5},"Венера":{"Зрительный":1},"Марс":{"Мышечный":.4,"Уретральный":.3,"Кожный":.3},"Юпитер":{"Уретральный":.5,"Оральный":.5},"Сатурн":{"Кожный":.5,"Анальный":.5},"Уран":{"Звуковой":1},"Нептун":{"Звуковой":.7,"Зрительный":.3},"Плутон":{"Обонятельный":.8,"Звуковой":.2}};
+var RULER=[{"Марс":1},{"Венера":1},{"Меркурий":1},{"Луна":1},{"Солнце":1},{"Меркурий":1},{"Венера":1},{"Плутон":.5,"Марс":.5},{"Юпитер":1},{"Сатурн":1},{"Уран":.5,"Сатурн":.5},{"Нептун":.5,"Юпитер":.5}];
+var SIGN_V=SIGN_V0.map(function(s,i){var m={};for(var k in s)m[k]=.5*s[k];for(var p in RULER[i]){var w=RULER[i][p];for(var v in PLANET_V[p])m[v]=(m[v]||0)+.5*w*PLANET_V[p][v];}return m;});
+var DOM={"Солнце":[4],"Луна":[3],"Меркурий":[2,5],"Венера":[1,6],"Марс":[0,7],"Юпитер":[8,11],"Сатурн":[9,10],"Уран":[10],"Нептун":[11],"Плутон":[7]};
+var EXA={"Солнце":[0,19],"Луна":[1,3],"Меркурий":[5,15],"Венера":[11,27],"Марс":[9,28],"Юпитер":[3,15],"Сатурн":[6,21],"Уран":[7,null],"Нептун":[3,null],"Плутон":[0,null]};
+var ASP=[[0,"Соединение",8],[180,"Оппозиция",8],[120,"Тригон",7],[90,"Квадрат",7],[60,"Секстиль",5],[150,"Квиконс",3]];
+var POP={natal:{"Звуковой":0.13481,"Зрительный":0.17309,"Обонятельный":0.07464,"Оральный":0.14722,"Анальный":0.11739,"Кожный":0.14409,"Мышечный":0.0646,"Уретральный":0.14415},design:{"Звуковой":0.12851,"Зрительный":0.1769,"Обонятельный":0.06848,"Оральный":0.15284,"Анальный":0.1172,"Кожный":0.14576,"Мышечный":0.06162,"Уретральный":0.14869}};
+
+function norm(x){x%=360;return x<0?x+360:x}
+function sep(a,b){var d=Math.abs(a-b)%360;return Math.min(d,360-d)}
+function fmt(x){x=norm(x);var s=Math.floor(x/30),d=x%30,dg=Math.floor(d),m=Math.round((d-dg)*60);if(m===60){m=0;dg++}return SIGNS[s]+" "+(dg<10?"0":"")+dg+"°"+(m<10?"0":"")+m+"′"}
+function lonOf(body,t){return norm(A.Ecliptic(A.GeoVector(body,t,true)).elon)}
+function jd(t){return t.ut+2451545.0}
+function meanNode(t){var T=(jd(t)-2451545)/36525;return norm(125.0445479-1934.1362891*T+0.0020754*T*T)}
+function meanLilith(t){var T=(jd(t)-2451545)/36525;return norm(83.3532465+4069.0137287*T-0.01032*T*T+180)}
+function chart(t){var o={};for(var k in BODIES)o[k]=lonOf(BODIES[k],t);o["Восх. узел"]=meanNode(t);o["Лилит"]=meanLilith(t);return o}
+function designTime(t){
+  var sun0=lonOf("Sun",t),target=norm(sun0-88),d=A.MakeTime(t.date.getTime?new Date(t.date.getTime()-89*864e5):t.ut-89);
+  for(var i=0;i<60;i++){var diff=((lonOf("Sun",d)-target+540)%360)-180;if(Math.abs(diff)<1e-7)break;d=d.AddDays(-diff/0.9856)}
+  return d;
+}
+// ---- дома (Плацидус) ----
+function obl(t){var T=(jd(t)-2451545)/36525;return 23.439291111-0.0130042*T}
+function rad(x){return x*Math.PI/180}function deg(x){return x*180/Math.PI}
+function mcFromRamc(R,e){return norm(deg(Math.atan2(Math.sin(rad(R)),Math.cos(rad(R))*Math.cos(rad(e)))))}
+function ascFrom(R,e,phi){var r=rad(R),ee=rad(e),p=rad(phi);return norm(deg(Math.atan2(Math.cos(r),-(Math.sin(r)*Math.cos(ee)+Math.tan(p)*Math.sin(ee)))))}
+function placidus(t,lat,lon){
+  var e=obl(t),R=norm(A.SiderealTime(t)*15+lon),ee=rad(e),p=rad(lat);
+  var c={1:ascFrom(R,e,lat),10:mcFromRamc(R,e)};
+  function cusp(off,frac,above){var H=R+off;for(var i=0;i<100;i++){var l=deg(Math.atan2(Math.sin(rad(H)),Math.cos(rad(H))*Math.cos(ee)));var dec=Math.asin(Math.sin(ee)*Math.sin(rad(l)));var ad=deg(Math.asin(Math.max(-1,Math.min(1,Math.tan(dec)*Math.tan(p)))));var Hn=above?R+frac*(90+ad):R+180-frac*(90-ad);if(Math.abs(Hn-H)<1e-9)break;H=Hn}return norm(deg(Math.atan2(Math.sin(rad(H)),Math.cos(rad(H))*Math.cos(ee))))}
+  c[11]=cusp(30,1/3,true);c[12]=cusp(60,2/3,true);c[2]=cusp(120,2/3,false);c[3]=cusp(150,1/3,false);
+  [1,2,3,10,11,12].forEach(function(k){c[((k+5)%12)+1]=norm(c[k]+180)});
+  return c;
+}
+function dignity(p,x){
+  var s=Math.floor(x/30),d=x%30;
+  if(DOM[p].indexOf(s)>=0)return[2,"обитель"];
+  var e=EXA[p];
+  if(e[0]===s){if(e[1]!==null&&Math.abs(d-e[1])<=3)return[3,"экзальтация, точный градус"];return[2,"экзальтация"+(OUTER.indexOf(p)>=0?" (совр.)":"")]}
+  if(DOM[p].some(function(k){return(k+6)%12===s}))return[-1,"изгнание"];
+  if((e[0]+6)%12===s)return[-1,"падение"+(OUTER.indexOf(p)>=0?" (совр.)":"")];
+  return[0,"нейтрально"];
+}
+function aspects(pos){
+  var n=Object.keys(pos),out=[];
+  for(var i=0;i<n.length;i++)for(var j=i+1;j<n.length;j++){var a=n[i],b=n[j],d=sep(pos[a],pos[b]);
+    ASP.forEach(function(x){var ang=x[0],nm=x[1],o=ang===150?3:x[2];
+      if(ang!==150&&(["Солнце","Луна"].indexOf(a)>=0||["Солнце","Луна"].indexOf(b)>=0))o+=1;
+      if(["ASC","MC"].indexOf(a)>=0||["ASC","MC"].indexOf(b)>=0)o=ang===150?2:Math.min(o,6);
+      if(Math.abs(d-ang)<=o)out.push([a,b,nm,Math.round(Math.abs(d-ang)*100)/100]);});}
+  return out;
+}
+function configs(pos,asp){
+  var H={};asp.forEach(function(x){var k=[x[0],x[1]].sort().join("|");(H[k]=H[k]||[]).push(x[2])});
+  function has(a,b,n){var k=[a,b].sort().join("|");return(H[k]||[]).indexOf(n)>=0}
+  var pl=Object.keys(pos).filter(function(p){return p!=="ASC"&&p!=="MC"}),res=[],seen={};
+  pl.forEach(function(x){for(var i=0;i<pl.length;i++)for(var j=i+1;j<pl.length;j++){var y=pl[i],z=pl[j];if(x===y||x===z)continue;
+    if(has(x,y,"Квиконс")&&has(x,z,"Квиконс")&&has(y,z,"Секстиль"))res.push(["Перст судьбы",x,[y,z]]);
+    if(has(x,y,"Квадрат")&&has(x,z,"Квадрат")&&has(y,z,"Оппозиция"))res.push(["Тау-квадрат",x,[y,z]]);}});
+  for(var i=0;i<pl.length;i++)for(var j=i+1;j<pl.length;j++)for(var k=j+1;k<pl.length;k++){var a=pl[i],b=pl[j],c=pl[k];
+    if(has(a,b,"Тригон")&&has(b,c,"Тригон")&&has(a,c,"Тригон")){res.push(["Большой тригон",null,[a,b,c]]);
+      pl.forEach(function(q){[[a,b,c],[b,a,c],[c,a,b]].forEach(function(t){if(has(q,t[0],"Оппозиция")&&has(q,t[1],"Секстиль")&&has(q,t[2],"Секстиль"))res.push(["Парус",q,[a,b,c]])})})}}
+  return res;
+}
+function houseOf(x,c){for(var i=1;i<=12;i++){var a=c[i],b=c[i%12+1];if(norm(x-a)<norm(b-a))return i}return 12}
+var SUNF=0.3; // доля Солнца в весе слоя: 0 — как у остальных личных планет, 0.3 — центр, 0.7 — доминирует
+var POPS={0:{"natal":{"Звуковой":0.12903,"Зрительный":0.17276,"Обонятельный":0.07478,"Оральный":0.14997,"Анальный":0.11817,"Кожный":0.14546,"Мышечный":0.06604,"Уретральный":0.14378},"design":{"Звуковой":0.12851,"Зрительный":0.1769,"Обонятельный":0.06848,"Оральный":0.15284,"Анальный":0.1172,"Кожный":0.14576,"Мышечный":0.06162,"Уретральный":0.14869}},0.3:{"natal":{"Звуковой":0.11484,"Зрительный":0.15541,"Обонятельный":0.06735,"Оральный":0.17545,"Анальный":0.10571,"Кожный":0.13273,"Мышечный":0.06145,"Уретральный":0.18706},"design":{"Звуковой":0.11325,"Зрительный":0.15831,"Обонятельный":0.06135,"Оральный":0.1795,"Анальный":0.10447,"Кожный":0.13109,"Мышечный":0.05683,"Уретральный":0.19522}},0.7:{"natal":{"Звуковой":0.08667,"Зрительный":0.12189,"Обонятельный":0.05273,"Оральный":0.22507,"Анальный":0.08158,"Кожный":0.10809,"Мышечный":0.05237,"Уретральный":0.2716},"design":{"Звуковой":0.07975,"Зрительный":0.1174,"Обонятельный":0.04569,"Оральный":0.23817,"Анальный":0.07634,"Кожный":0.09877,"Мышечный":0.04628,"Уретральный":0.2976}}};
+function score(posAll,cusps){
+  var pos={};for(var k in BASE)pos[k]=posAll[k];
+  if(cusps){pos.ASC=cusps[1];pos.MC=cusps[10]}
+  var asp=aspects(pos),cf=configs(pos,asp),apex={};cf.forEach(function(c){if(c[1])apex[c[1]]=1});
+  var V={};VEC.forEach(function(v){V[v]=0});var det={};
+  var rulAsc=cusps?RULER[Math.floor(cusps[1]/30)]:{},rulMc=cusps?RULER[Math.floor(cusps[10]/30)]:{};
+  for(var p in BASE){var x=pos[p],w=BASE[p];
+    if(OUTER.indexOf(p)>=0){var kk=0;asp.forEach(function(a){if((a[0]===p||a[1]===p)&&a[2]!=="Квиконс"&&a[3]<=3){var q=a[0]===p?a[1]:a[0];if(["Меркурий","Венера","Марс"].indexOf(q)>=0)kk++}});w+=Math.min(2,kk)}
+    var h=null,ang=false;
+    if(cusps){h=houseOf(x,cusps);var near=Math.min(sep(x,cusps[1]),sep(x,cusps[4]),sep(x,cusps[7]),sep(x,cusps[10]));
+      if(near<=5){w+=3;ang=true}else if([1,4,7,10].indexOf(h)>=0){w+=2;ang=true}else if([2,5,8,11].indexOf(h)>=0)w+=1;
+      if(rulAsc[p])w+=2*rulAsc[p]; // управитель Асцендента — хозяин карты
+      if(rulMc[p])w+=1*rulMc[p];}  // управитель Середины неба
+    if(apex[p])w+=2;
+    asp.forEach(function(a){if(a[0]!==p&&a[1]!==p)return;var q=a[0]===p?a[1]:a[0];if(["Солнце","Луна","ASC","MC"].indexOf(q)>=0&&q!==p){var add=(a[3]<=1?2:a[3]<=3?1:a[3]<=5?.5:0)*(a[2]==="Квиконс"?.5:1);w+=add}});
+    var mix={},nat=cusps?.5:.6,sg=cusps?.3:.4,hs=cusps?.2:0;
+    var cj=[];asp.forEach(function(a){if(a[2]!=="Соединение"||(a[0]!==p&&a[1]!==p))return;var q=a[0]===p?a[1]:a[0];if(!PLANET_V[q])return;var f=.35*Math.max(0,1-a[3]/8);if(f>0)cj.push([q,f])});
+    var own=1;cj.forEach(function(c){own-=c[1]});own=Math.max(.5,own);var scj=cj.reduce(function(s,c){return s+c[1]},0),kc=scj>0?(1-own)/scj:0;
+    for(var v in PLANET_V[p])mix[v]=(mix[v]||0)+nat*own*PLANET_V[p][v];
+    cj.forEach(function(c){for(var v in PLANET_V[c[0]])mix[v]=(mix[v]||0)+nat*c[1]*kc*PLANET_V[c[0]][v]});
+    var sv=SIGN_V[Math.floor(x/30)];for(v in sv)mix[v]=(mix[v]||0)+sg*sv[v];
+    if(h){var hv=SIGN_V[h-1];for(v in hv)mix[v]=(mix[v]||0)+hs*hv[v]}
+    det[p]={lon:x,house:h,weight:w,dig:dignity(p,x),mix:mix,angular:ang,apex:!!apex[p]};
+  }
+  var pts={};
+  if(cusps){pts.ASC={lon:cusps[1],weight:4,mix:SIGN_V[Math.floor(cusps[1]/30)]};pts.MC={lon:cusps[10],weight:3,mix:SIGN_V[Math.floor(cusps[10]/30)]}}
+  var others=0;for(p in det)if(p!=="Солнце")others+=det[p].weight;for(p in pts)others+=pts[p].weight;
+  if(SUNF>0)det["Солнце"].weight=Math.max(det["Солнце"].weight,SUNF/(1-SUNF)*others);
+  var all=0;for(p in det){det[p].weight=Math.round(det[p].weight*100)/100;all+=det[p].weight}for(p in pts)all+=pts[p].weight;
+  for(p in det)for(v in det[p].mix)V[v]+=det[p].weight*det[p].mix[v];
+  for(p in pts)for(v in pts[p].mix)V[v]+=pts[p].weight*pts[p].mix[v];
+  for(p in det)det[p].pct=Math.round(det[p].weight/all*1000)/10;for(p in pts)pts[p].pct=Math.round(pts[p].weight/all*1000)/10;
+  var tot=0;VEC.forEach(function(v){tot+=V[v]});var share={};VEC.forEach(function(v){share[v]=V[v]/tot});
+  return{share:share,det:det,asp:asp,cf:cf,pts:pts};
+}
+function fullCalc(o){ // o: {y,mo,d,h,mi,tz,lat,lon,rlat,rlon,n}
+  var utc=Date.UTC(o.y,o.mo-1,o.d,o.h,o.mi)-o.tz*3600e3;
+  var t=A.MakeTime(new Date(utc)),dt=designTime(t);
+  var pN=chart(t),pD=chart(dt),c=placidus(t,o.lat,o.lon);
+  var rN=score(pN,c),rD=score(pD,null);
+  function prof(sc,lay){var P=(POPS[SUNF]||POP)[lay||'natal'];var c={},tot=0;VEC.forEach(function(v){c[v]=sc.share[v]/P[v];tot+=c[v]});var o={};VEC.forEach(function(v){o[v]=Math.round(c[v]/tot*1000)/10});return o}
+  function retro(tt){var a=A.MakeTime(tt.ut-0.5),b=A.MakeTime(tt.ut+0.5),o={};for(var k in BODIES){if(k==="Солнце"||k==="Луна"){o[k]=false;continue}var d=((lonOf(BODIES[k],b)-lonOf(BODIES[k],a)+540)%360)-180;o[k]=d<0}return o}
+  var res={rN:retro(t),rD:retro(dt),t:t,dt:dt,pN:pN,pD:pD,cusps:c,natal:rN,design:rD,idx:{natal:prof(rN,'natal'),design:prof(rD,'design')},geo:{lat:o.lat,lon:o.lon},bd:{y:o.y,mo:o.mo,d:o.d}};
+  if(o.rlat!=null&&!isNaN(o.rlat)&&o.rlon!=null&&!isNaN(o.rlon)){var rc=placidus(t,o.rlat,o.rlon);var rR=score(pN,rc);res.reloc={cusps:rc,score:rR,idx:prof(rR,'natal'),geo:{lat:o.rlat,lon:o.rlon}}}
+  return res;
+}
+// ---- уровни по карте: потолок и зона риска ----
+var MARK={"Звуковой":["Нептун","Уран"],"Зрительный":["Венера","Луна"],"Обонятельный":["Плутон"],"Оральный":["Меркурий"],"Анальный":["Сатурн","Луна"],"Кожный":["Меркурий","Сатурн","Марс"],"Мышечный":["Марс"],"Уретральный":["Солнце","Марс"]};
+function levelFor(v,layers){ // layers: [{det,asp,lilith}]
+  var best=3,why=[],bestLayer=-1,risk=3,riskWhy=[];
+  layers.forEach(function(L,li){
+    var marks=MARK[v].slice();if(v==="Обонятельный"&&Math.floor(L.det["Марс"].lon/30)===7)marks.push("Марс");
+    var dig=0,dw="",allBad=true,ang=0,aw="";
+    marks.forEach(function(p){var d=L.det[p];
+      if(d.dig[0]>=3&&dig<2){dig=2;dw=p+" — "+d.dig[1]}else if(d.dig[0]===2&&dig<1){dig=1;dw=p+" — "+d.dig[1]}
+      if(d.dig[0]>=0)allBad=false;
+      if((d.angular||d.apex)&&!ang){ang=1;aw=p+(d.apex?" — вершина конфигурации":" — у угла карты")}
+      L.asp.forEach(function(a){if(a[0]!==p&&a[1]!==p)return;var q=a[0]===p?a[1]:a[0];
+        if((a[2]==="Квадрат"||a[2]==="Оппозиция")&&a[3]<=3&&["Сатурн","Марс","Плутон","Уран","Нептун"].indexOf(q)>=0&&q!==p){risk=2;riskWhy.push((li?"в теле: ":"")+p+(a[2]==="Квадрат"?" в квадрате к ":" напротив ")+(q==="Сатурн"?"Сатурну":q==="Марс"?"Марсу":q==="Плутон"?"Плутону":q==="Уран"?"Урану":"Нептуну")+" ("+a[3].toFixed(1)+"°)")}});
+      if(d.dig[0]<0){risk=2;riskWhy.push((li?"в теле: ":"")+p+" — "+d.dig[1])}
+      if(L.lilith!=null){var o=sep(d.lon,L.lilith);if(o<=3){risk=2;riskWhy.push((li?"в теле: ":"")+p+" рядом с Лилит ("+o.toFixed(1)+"°)")}}
+    });
+    var s=3+dig+ang-(allBad?1:0);
+    if(s>best||(s===best&&bestLayer<0&&(dw||aw))){best=s;bestLayer=li;why=[dw,aw].filter(Boolean).map(function(x){return(li?"в теле: ":"")+x})}
+  });
+  best=Math.max(3,Math.min(5,best));
+  var uniq=[];riskWhy.forEach(function(x){if(uniq.indexOf(x)<0)uniq.push(x)});
+  if(risk>=best)risk=best-1;risk=Math.max(2,risk);
+  return{ceil:best,ceilWhy:why.join("; ")||"планеты вектора стоят без особых достоинств — потолок средний",risk:risk,riskWhy:uniq.slice(0,3).join("; ")||"жёстких аспектов к планетам вектора нет — срыв вниз маловероятен"};
+}
+
+// Толкование связей: [о чём связь, как звучит в гармонии/слиянии, как звучит в напряжении]
+var PAIR={
+"Солнце|Луна":["союз воли и чувств: «я хочу» и «мне нужно»","человек цельный: чего хочет головой, того хочет и сердцем; внутренний покой","хочет одного, а чувствует другое; внутренний спор между долгом и потребностью"],
+"Солнце|Меркурий":["«я» и мысль","человек думает и говорит от первого лица: мысль — продолжение личности","—"],
+"Солнце|Венера":["«я» и любовь, вкус","обаяние, умение нравиться, вкус как часть личности","—"],
+"Солнце|Марс":["воля и действие","решительность: захотел — сделал, энергия идёт прямо в цель","нетерпение, вспыльчивость, борьба за первенство; сила, которой нужен выход"],
+"Солнце|Юпитер":["«я» и масштаб","щедрость, оптимизм, вера в себя, умение расти и вести за собой","размах больше возможностей: переоценка сил, «всё и сразу»"],
+"Солнце|Сатурн":["«я» и долг","зрелость, выдержка, способность строить вдолгую; уважение через надёжность","внутренний строгий судья: «я недостаточно хорош», тяжёлый путь к признанию, зато прочный"],
+"Солнце|Уран":["«я» и свобода","яркая индивидуальность, озарения, смелость быть не как все","бунт, резкие повороты, трудно с рамками; свобода любой ценой"],
+"Солнце|Нептун":["«я» и мечта","тонкость, вдохновение, способность чувствовать большее, чем видно","размытое «я»: трудно понять, кто ты; легко раствориться в других или в иллюзии"],
+"Солнце|Плутон":["«я» и сила","мощная воля, способность к перерождению, влияние на людей","борьба за власть и контроль; жизнь через кризисы, после которых человек становится другим"],
+"Солнце|ASC":["суть и подача","человек выглядит так, как он есть: цельный, узнаваемый","внутри одно, снаружи от него ждут другого; разрыв между сутью и образом"],
+"Солнце|MC":["«я» и призвание","призвание совпадает с личностью: работа — это он сам","трудно найти дело, в котором можно быть собой"],
+"Луна|Меркурий":["чувства и мысль","чувства легко находят слова; эмоциональный интеллект, умение говорить о важном","голова спорит с сердцем; переживания прокручиваются в мыслях"],
+"Луна|Венера":["чувства и любовь","мягкость, тепло, уют, способность любить и принимать любовь","потребность в близости и вкус к людям тянут в разные стороны"],
+"Луна|Марс":["чувства и действие","эмоции сразу становятся делом; живая реакция, смелость защищать своих","вспыльчивость, эмоциональные вспышки, злость, которая копится в теле"],
+"Луна|Юпитер":["чувства и широта","эмоциональная щедрость, оптимизм, много людей вокруг, лёгкость","эмоций слишком много: рассеивание, обещания больше, чем силы"],
+"Луна|Сатурн":["чувства и сдержанность","эмоциональная надёжность, верность, умение держать себя","чувства под замком: холод, одиночество, обиды хранятся долго; зато огромная выносливость"],
+"Луна|Уран":["чувства и свобода","нестандартная эмоциональность, потребность в пространстве, быстрые озарения сердцем","эмоциональные качели, внезапные разрывы, трудно с привязанностью"],
+"Луна|Нептун":["чувства и бесконечность","глубокая эмпатия, интуиция, творчество, ощущение чужих состояний","чувства в тумане: идеализация, разочарования, ожидание, что поймут без слов"],
+"Луна|Плутон":["чувства и глубина","эмоциональная сила, способность прожить и переработать сильное","страсти, ревность, контроль через чувства; эмоции «всё или ничего»"],
+"Луна|ASC":["чувства и подача","эмоции видны сразу, человека легко почувствовать","то, что он чувствует, и то, как выглядит, не совпадают"],
+"Луна|MC":["чувства и призвание","работа должна быть «своей», с душой; публичная роль эмоционально важна","разрыв между домом и карьерой, между тем, что нужно сердцу, и ролью"],
+"Меркурий|Венера":["мысль и красота","красивая речь, вкус к словам, дипломатичность","—"],
+"Меркурий|Марс":["мысль и действие","острый ум, быстрые решения, слово как оружие и инструмент","резкость, спорность, слово ранит; ум, который всё время воюет"],
+"Меркурий|Юпитер":["мысль и масштаб","широкое мышление, талант объяснять и учить, видеть общее","много идей, мало деталей; обещания и обобщения"],
+"Меркурий|Сатурн":["мысль и структура","системный, глубокий, основательный ум; медленно, но точно","мрачность мысли, сомнения, трудно высказаться; зато каждое слово взвешено"],
+"Меркурий|Уран":["мысль и озарение","гениальные догадки, оригинальность, технический и системный ум","мысли быстрее слов: скачки, нервность, трудно объяснить свою идею"],
+"Меркурий|Нептун":["мысль и воображение","образное, поэтическое, интуитивное мышление","размытость: путаница, недоговорённость, трудно с фактами и точностью"],
+"Меркурий|Плутон":["мысль и глубина","аналитик подтекстов: видит суть, скрытые мотивы, бьёт в точку","одержимость мыслью, слово-давление, подозрительность"],
+"Меркурий|ASC":["мысль и подача","говорит так, как думает; ум виден сразу","мысль и то, как она звучит вслух, расходятся; лучше передаётся письменно"],
+"Меркурий|MC":["мысль и призвание","профессия через ум, слово, коммуникацию","умственная работа и роль в обществе требуют подстройки"],
+"Венера|Марс":["любовь и страсть","притягательность, сильное влечение, творческая энергия","страсть и нежность конфликтуют: любовь через борьбу"],
+"Венера|Юпитер":["любовь и щедрость","обаяние, удача в отношениях, широкая любовь, вкус к красивой жизни","излишества, переоценка людей, щедрость без меры"],
+"Венера|Сатурн":["любовь и долг","верность, серьёзные отношения, вкус к классике и качеству","страх быть отвергнутым, холодность, любовь «по заслугам»"],
+"Венера|Уран":["любовь и свобода","необычный вкус, яркие внезапные влюблённости, свобода в отношениях","любовь-качели: притяжение и отталкивание, трудно с постоянством"],
+"Венера|Нептун":["любовь и идеал","романтика, тонкий художественный вкус, жертвенная любовь","идеализация, разочарования, любовь к образу, а не к человеку"],
+"Венера|Плутон":["любовь и сила","магнетизм, глубокая всепоглощающая любовь","ревность, контроль, любовь-зависимость"],
+"Венера|ASC":["вкус и подача","привлекательность, приятная манера, человек нравится","собственный вкус и то, как человек выглядит, не совпадают"],
+"Венера|MC":["красота и призвание","профессия через красоту, людей, искусство","любовь и карьера тянут в разные стороны"],
+"Марс|Юпитер":["действие и размах","энергия большого масштаба, предпринимательская смелость","перегибы, риск без расчёта, «рубить с плеча»"],
+"Марс|Сатурн":["действие и выдержка","дисциплина, выносливость, способность долго держать усилие","газ и тормоз одновременно: злость под крышкой, старт через сопротивление"],
+"Марс|Уран":["действие и внезапность","смелость, изобретательность, молниеносные решения","взрывы, резкие разрывы, риск, внезапные срывы"],
+"Марс|Нептун":["действие и смысл","действие во имя идеи, вдохновлённая энергия","энергия утекает, неясно, за что бороться; действие в тумане"],
+"Марс|Плутон":["действие и сила","огромная воля, умение пробивать и выдерживать кризисы","жёсткость, борьба на уничтожение, давление на людей"],
+"Марс|ASC":["действие и подача","энергичный, прямой, заметный","напор в подаче, конфликтность; человека воспринимают как более жёсткого"],
+"Марс|MC":["действие и призвание","карьера через действие, лидерство, конкуренцию","борьба за положение, конфликты с начальством"],
+"Юпитер|Сатурн":["рост и ограничение","мудрый расчёт: умение расти шаг за шагом","то рывок, то стоп: вера и сомнение спорят"],
+"Юпитер|Уран":["рост и свобода","удачные внезапности, прорывы, широта взглядов","неожиданные взлёты и падения"],
+"Юпитер|Нептун":["вера и мечта","духовность, сострадание, вдохновение большими идеями","иллюзии, вера в несбыточное, идеализм без проверки"],
+"Юпитер|Плутон":["рост и власть","способность к большому влиянию, масштабу, трансформации систем","жажда большего, борьба за влияние; «отдать или удержать»"],
+"Юпитер|ASC":["масштаб и подача","открытость, оптимизм, человек кажется больше, чем есть","обещает больше, чем может, переоценивает себя в подаче"],
+"Юпитер|MC":["рост и призвание","удача в карьере, роль учителя, наставника","амбиции больше реальности"],
+"Сатурн|Уран":["старое и новое","умение реформировать: новое на прочном фундаменте","консерватор и бунтарь в одном лице; рывки и откаты"],
+"Сатурн|Нептун":["форма и мечта","умение воплощать идеалы в реальность","мечта и реальность не стыкуются: правила мешают смыслу, смысл размывает правила"],
+"Сатурн|Плутон":["структура и сила","огромная выдержка, умение строить на века, выживать","давление, жёсткость, тяжёлые периоды испытаний"],
+"Сатурн|ASC":["долг и подача","серьёзный, надёжный, взрослый вид","скованность, строгость к себе, трудно расслабиться на людях"],
+"Сатурн|MC":["долг и призвание","карьера долгая, через ответственность и статус","путь к признанию тяжёлый и поздний, но прочный"],
+"Уран|Нептун":["поколенческая связь: новое и мечта","у всего поколения","у всего поколения"],
+"Уран|Плутон":["поколенческая связь: перемены и сила","у всего поколения","у всего поколения"],
+"Нептун|Плутон":["поколенческая связь: мечта и сила","у всего поколения","у всего поколения"],
+"Уран|ASC":["свобода и подача","человек выглядит необычно, оригинально","резкость, непредсказуемость в подаче"],
+"Уран|MC":["свобода и призвание","нестандартная профессия, технологии, будущее","резкие повороты карьеры"],
+"Нептун|ASC":["мечта и подача","тонкость, загадочность, обаяние","человека трудно «прочитать»: его видят не таким, какой он есть"],
+"Нептун|MC":["мечта и призвание","призвание в искусстве, помощи, духовном","неясность в карьере, трудно определиться с ролью"],
+"Плутон|ASC":["сила и подача","человек ощущается сильным, влиятельным, считывающим","напор, который пугает; борьба за влияние с первых минут"],
+"Плутон|MC":["сила и призвание","влияние в профессии, власть, работа с кризисами","борьба за статус и власть"],
+"ASC|MC":["подача и призвание","—","—"]
+};
+var PORD=["Солнце","Луна","Меркурий","Венера","Марс","Юпитер","Сатурн","Уран","Нептун","Плутон","ASC","MC"];
+function pairText(a,b,kind){
+  var k=PORD.indexOf(a)<PORD.indexOf(b)?a+"|"+b:b+"|"+a,t=PAIR[k];if(!t)return null;
+  var easy=t[1],hard=t[2]==="—"?t[1]:t[2];
+  if(kind==="Соединение")return{about:t[0],how:easy===hard?easy:("слиты в одно, поэтому и дар, и испытание: "+easy+". Обратная сторона: "+hard)};
+  if(kind==="Тригон"||kind==="Секстиль")return{about:t[0],how:easy+(kind==="Секстиль"?" (возможность, которую нужно взять)":" (работает само, но включается задачей)")};
+  if(kind==="Квиконс")return{about:t[0],how:"две логики не совпадают, нужна постоянная подстройка: "+hard};
+  return{about:t[0],how:hard+(kind==="Оппозиция"?" (часто вторую сторону человек встречает в других людях)":" (это трение и есть двигатель)")};
+}
+// Сфера дома применительно к вектору
+var HOUSE_V=["",
+ "проявляется прямо в личности и в том, как человек входит в любую ситуацию: это видно сразу, это его «лицо»",
+ "проявляется через ресурсы, деньги, тело и ценности: вектор становится способом зарабатывать и опорой",
+ "проявляется в общении, учёбе, ближнем круге: через разговоры, тексты, поездки, братьев-сестёр и соседей",
+ "живёт в основании: дома, в семье, в корнях, в тишине. Снаружи может быть не видно, но на этом человек стоит",
+ "проявляется в творчестве, игре, любви, детях: через то, что человек создаёт для радости",
+ "проявляется в ежедневной работе, ремесле, здоровье, служении: через ритуалы и дело руками",
+ "проявляется через партнёра и в паре: раскрывается рядом с другим человеком",
+ "проявляется в кризисах, чужих ресурсах, глубине: включается, когда ставки высоки",
+ "проявляется в мировоззрении, учении, дальних странах: через идеи, которые хочется передать",
+ "проявляется в карьере и статусе: на виду, в профессии, в социальной роли",
+ "проявляется в сообществах, дружбе, общих планах: через группу и единомышленников",
+ "живёт в уединении и скрытом: работает за кулисами, во сне, в одиночестве, в служении невидимому"];
+var SAME_ROLE={"Солнце":"«я» и воля","Луна":"чувства и привычки","Меркурий":"мысль и речь","Венера":"любовь и вкус","Марс":"действие и злость","Юпитер":"рост и вера","Сатурн":"порядок и долг","Уран":"свобода и новое","Нептун":"мечта и смысл","Плутон":"сила и контроль","ASC":"подача себя","MC":"призвание"};
+var _pairText=pairText;
+pairText=function(a,b,kind){
+  if(a!==b)return _pairText(a,b,kind);
+  var r=SAME_ROLE[a]||a,about='одна и та же тема у обоих: '+r;
+  if(kind==="Соединение")return{about:about,how:'резонанс: в этой теме вы звучите в унисон и усиливаете друг друга — и радости, и слабые места'};
+  if(kind==="Тригон"||kind==="Секстиль")return{about:about,how:'понимаете друг друга в этом без слов: ваши манеры разные, но совместимые'};
+  if(kind==="Квиконс")return{about:about,how:'одно и то же понимаете по-разному, нужна подстройка'};
+  return{about:about,how:'одно и то же делаете по-разному и легко спорите, «как правильно»; это же и учит друг друга'};
+};
+
+// ===== Почерк вектора: через что именно он проявляется у этого человека =====
+var NOUN={"Солнце":"лидер","Луна":"хранитель","Меркурий":"аналитик","Венера":"эстет","Марс":"воин","Юпитер":"учитель","Сатурн":"архитектор","Уран":"новатор","Нептун":"мистик","Плутон":"исследователь глубин"};
+var VP={
+ "Звуковой":{"Уран":"через озарения и внезапные прорывы. Смысл приходит вспышкой, тянет к будущему, технологиям, нестандартным системам","Нептун":"через интуицию и растворение. Смысл ощущается как единство со всем, тянет к музыке, мистике, тишине, состояниям без слов","Плутон":"через глубину и тайное. Смысл ищется на дне: психика, кризисы, то, что скрыто от других","Меркурий":"через мысль и слово. Смысл добывается рассуждением, формулировкой, текстом, системой понятий","Сатурн":"через структуру. Смысл строится как здание: долго, основательно, на всю жизнь","Солнце":"через само «я». Поиск смысла и есть стержень личности","Луна":"через чувство. Смысл нужен как эмоциональная опора, без него нет покоя","Юпитер":"через мировоззрение и учение. Смысл хочется передать, объяснить, сделать большим","Венера":"через красоту. Смысл ощущается в гармонии, звуке, форме","Марс":"через действие. Смысл нужно не только понять, но и пробить в жизнь"},
+ "Зрительный":{"Венера":"через вкус, любовь и красоту. Глаз безошибочно видит гармонию, чувства выражаются через эстетику","Луна":"через эмоции и заботу. Чувства живые, видны сразу, связь с людьми через сопереживание","Нептун":"через сострадание и воображение. Чувство без границ: растворение в другом, кино, музыка, образы","Солнце":"через яркость личности. Человек сам — образ, его видно","Меркурий":"через описание. Чувства и образы переводятся в слова и истории","Юпитер":"через щедрость. Любовь широкая, на многих","Марс":"через страстность. Эмоция сразу превращается в действие","Сатурн":"через сдержанность. Чувства глубокие, но выражаются скупо и надёжно","Уран":"через неожиданные образы. Нестандартный вкус, вспышки чувств","Плутон":"через интенсивность. Чувства «всё или ничего»"},
+ "Обонятельный":{"Плутон":"через силу и контроль. Чует скрытые мотивы, кризисы, власть — и умеет ими управлять","Марс":"через хватку. Чутьё сразу превращается в точное действие: удар в нужную точку","Сатурн":"через стратегию. Чутьё работает вдолгую: просчитывает риски, строит защиту","Меркурий":"через слово. Чует подтекст, понимает, что человек имеет в виду на самом деле","Луна":"через ощущение «свой-чужой». Чутьё эмоциональное, телесное, мгновенное","Солнце":"через личную силу. Человек сам ощущается как сила, с которой надо считаться","Уран":"через внезапное знание. Предчувствие приходит вспышкой","Нептун":"через интуицию. Чует атмосферу, невидимые течения","Юпитер":"через выгоду. Чует возможности и рост","Венера":"через симпатии. Чует, кто кому приятен и зачем"},
+ "Оральный":{"Меркурий":"через живую речь. Быстро говорит, легко объясняет, умеет вытащить из человека историю","Юпитер":"через проповедь. Слово хочется сделать большим, вдохновлять, учить многих","Солнце":"через личное обаяние. Человек сам — голос, его слушают","Луна":"через эмоциональную речь. Говорит о чувствах, тепло, по-домашнему","Венера":"через красивое слово. Речь приятная, вкусная, обаятельная","Марс":"через напор. Говорит прямо, остро, может и прикрикнуть","Сатурн":"через взвешенное слово. Говорит мало, но весомо","Уран":"через неожиданные формулировки. Слово-вспышка, парадокс","Нептун":"через образы. Речь поэтичная, обволакивающая","Плутон":"через слово-силу. Говорит так, что меняет людей"},
+ "Анальный":{"Сатурн":"через структуру и стандарт. Качество — это порядок, правило, проверенное временем","Луна":"через память и семью. Помнит всё, ценит корни, традиции, «как было»","Меркурий":"через анализ. Качество — это точность деталей, разобранная до винтика","Венера":"через мастерство вкуса. Качество — это красиво сделанная вещь","Солнце":"через гордость за дело. Работа — продолжение личности","Марс":"через упорство. Делает долго, но до конца","Юпитер":"через передачу опыта. Хочет учить тому, что знает","Уран":"через переосмысление традиции. Берёт старое и делает его по-новому","Нептун":"через благоговение перед прошлым. Опыт ощущается почти как святыня","Плутон":"через глубокую переработку опыта. Прошлое не отпускает, пока не понято до конца"},
+ "Кожный":{"Меркурий":"через логику и договор. Быстро считает, формулирует условия, видит выгоду","Сатурн":"через закон и систему. Правила, сроки, ответственность, долгосрочная стратегия","Марс":"через скорость и дисциплину. Действует быстро, экономно, по-спортивному","Солнце":"через личный успех. Важно быть эффективным и результативным","Луна":"через бытовой порядок. Режим, расписание, экономия в доме","Венера":"через выгодный обмен. Красиво, но с расчётом","Юпитер":"через масштабные проекты и законы","Уран":"через технологии и оптимизацию. Ищет, как сделать то же самое быстрее и умнее","Нептун":"через гибкость правил. Границы мягкие, договорённости часто «на понимании»","Плутон":"через контроль ресурсов. Чует, где деньги и власть, и держит их"},
+ "Мышечный":{"Марс":"через телесную силу. Выносливость, работа руками, движение","Сатурн":"через терпение. Медленно, ровно, надёжно, годами","Луна":"через ритм тела. Сон, еда, привычный распорядок как опора","Солнце":"через физическую уверенность","Венера":"через телесность и удовольствие","Меркурий":"через ловкость рук","Юпитер":"через силу коллектива","Уран":"через рывки энергии","Нептун":"через пластику","Плутон":"через предельные нагрузки"},
+ "Уретральный":{"Солнце":"через личное лидерство. Человек — центр, вокруг которого собираются","Марс":"через решительность и риск. В нужный момент идёт первым","Юпитер":"через щедрость. Отдаёт много, берёт ответственность за многих","Луна":"через защиту своих. Лидер-покровитель","Уран":"через бунт. Ломает старое, ведёт в новое","Плутон":"через власть. Берёт управление в кризис","Сатурн":"через ответственность. Ведёт как старший, а не как герой","Меркурий":"через идеи. Ведёт словом","Венера":"через обаяние. Ведёт тем, что за ним хочется идти","Нептун":"через мечту. Ведёт к идеалу"}
+};
+var SM=["напористо и первым, без долгих раздумий","медленно, основательно, телесно","любопытно, многоканально, через слова и людей","бережно, через чувство «своих»","ярко, творчески, от сердца","точно, аналитично, с пользой","через партнёра, в поиске баланса","глубоко, интенсивно, до самой сути","через мировоззрение, учение, дальние горизонты","структурно, стратегически, вдолгую","нестандартно, для коллектива, в будущее","через растворение, сопереживание, интуицию"];
+var ASYM={"Соединение":"∩","Квадрат":"□","Оппозиция":"☍","Тригон":"△","Секстиль":"⚹","Квиконс":"⚻"};
+function loudWord(o){return o<=1?"очень точно — звучит постоянно":o<=2?"точно — звучит заметно":"звучит фоном"}
+function nameOf(q){return q==="ASC"?"Асцендент":q==="MC"?"Середина неба":q}
+
+function carriers(r,v){
+  var list=[];[["голова",r.natal,r.pN,r.rN],["тело",r.design,r.pD,r.rD]].forEach(function(L){
+    for(var p in L[1].det){var d=L[1].det[p],c=d.weight*(d.mix[v]||0);if(c>0)list.push({layer:L[0],p:p,d:d,c:c,asp:L[1].asp,pos:L[2],retro:L[3][p]})}});
+  list.sort(function(a,b){return b.c-a.c});var mx=list.length?list[0].c:0;
+  return list.filter(function(x,i){return i<3&&x.c>=mx*0.35});
+}
+function aspOf(x,max){
+  return x.asp.filter(function(a){if(a[0]!==x.p&&a[1]!==x.p)return false;var q=a[0]===x.p?a[1]:a[0];if(OUTER.indexOf(x.p)>=0&&OUTER.indexOf(q)>=0)return false;return a[3]<=3}).map(function(a){return{q:a[0]===x.p?a[1]:a[0],k:a[2],o:a[3]}}).sort(function(a,b){return a.o-b.o}).slice(0,max||2);
+}
+function degNote(p,lon,pos){
+  var s=Math.floor(lon/30),d=lon%30,out=[];
+  if(d<1)out.push("стоит на самом входе в знак (0°): энергия свежая, ещё с привкусом знака "+SIGNS[(s+11)%12]);
+  if(d>=29)out.push("стоит на последнем градусе знака: тема завершения, итога, «последнего шага»");
+  var e=EXA[p];if(e&&e[0]===s&&e[1]!==null&&Math.abs(d-e[1])<=1)out.push("почти в точном градусе экзальтации — пик силы этой планеты");
+  var nn=pos["Восх. узел"];if(nn!=null){if(sep(lon,nn)<=3)out.push("на Восходящем узле: этот вектор связан с главной задачей жизни, к нему тянет расти");if(sep(lon,norm(nn+180))<=3)out.push("на Южном узле: это умение «из прошлого», даётся само, но может стать зоной застревания");}
+  var li=pos["Лилит"];if(li!=null&&sep(lon,li)<=2)out.push("рядом с Лилит: слепое пятно, человек может не видеть этого в себе");
+  return out;
+}
+function carrierHTML(v,x){
+  var s=Math.floor(x.d.lon/30),h='<div class="carrier"><div class="ch"><b>'+x.p+'</b> в '+SIGNS_P[s]+(x.d.house?', '+x.d.house+' дом':'')+(x.retro?', ретроградный':'')+' <span class="small">· '+x.layer+' · '+fmt(x.d.lon)+'</span></div><dl class="facts">';
+  h+='<dt>Проводник</dt><dd>'+v+' проявляется '+VP[v][x.p]+'.</dd>';
+  h+='<dt>Манера знака</dt><dd>'+SIGNS[s]+': '+SM[s]+'.'+(x.d.dig[0]>0?' Планета здесь в силе — '+x.d.dig[1]+': проявляется легко и качественно.':x.d.dig[0]<0?' Планете здесь неуютно — '+x.d.dig[1]+': проявляется через усилие и обходные пути, зато с особой глубиной.':'')+'</dd>';
+  if(x.d.house)h+='<dt>Где в жизни</dt><dd>'+x.d.house+' дом: '+HOUSE_V[x.d.house]+'.</dd>';
+  var as=aspOf(x,3);as.forEach(function(a,i){h+='<dt>'+(i===0?'Связи':'')+'</dt><dd>'+capital(precWord(a.o))+': '+litBond(x.p,a.q,a.k,a.o)+'</dd>'});
+  var ex=[];if(x.retro)ex.push('ретроградность: сначала долго проживается внутри, потом выдаётся готовым');if(x.d.apex)ex.push('стоит на вершине конфигурации — точка, где сходится напряжение всей карты');
+  ex=ex.concat(degNote(x.p,x.d.lon,x.pos));
+  if(ex.length)h+='<dt>Особое</dt><dd>'+ex.join('; ')+'.</dd>';
+  return h+'</dl></div>';
+}
+function signature(r,v,lev){
+  var cs=carriers(r,v);if(!cs.length)return null;var top=cs[0];
+  var ladder=TX.LAD[v][lev.ceil-1].split(' — ')[0];
+  var arche=ladder+"-"+NOUN[top.p];
+  var codeParts=[top.p,SIGNS[Math.floor(top.d.lon/30)]];if(top.d.house)codeParts.push(top.d.house+" дом");var ta=aspOf(top,1)[0];if(ta)codeParts.push(ASYM[ta.k]+" "+nameOf(ta.q)+" "+ta.o.toFixed(1)+"°");codeParts.push(top.layer);
+  var others=Object.keys(VP[v]).filter(function(p){return cs.every(function(x){return x.p!==p})}).slice(0,3).map(function(p){return'через '+p+' — '+VP[v][p].split('. ')[0].replace(/^через /,'')}).join('; ');
+  return{arche:arche,ladder:ladder,code:codeParts.join(' · '),top:top,carriers:cs,lines:cs.map(function(x){return carrierHTML(v,x)}),others:others};
+}
+// Подробное сравнение одного вектора у двух людей
+function compareVec(v,A1,B1,la,lb,n1,n2){
+  var a=A1.top,b=B1.top,sa=Math.floor(a.d.lon/30),sb=Math.floor(b.d.lon/30);
+  var aa=aspOf(a,1)[0],ba=aspOf(b,1)[0];
+  function row(lbl,x,y){return'<tr><th>'+lbl+'</th><td>'+x+'</td><td>'+y+'</td></tr>'}
+  function ln(x){return TX.LAD[v][x.ceil-1].split(' — ')[0]+' ('+x.ceil+')'}
+  function con(x){if(!x)return'<span class="small">точных связей нет — вектор звучит «чисто», без примесей</span>';var pt=pairText(x===aa?a.p:b.p,x.q,x.k);return'<b>'+ASYM[x.k]+' '+nameOf(x.q)+'</b> '+x.o.toFixed(1)+'°: '+(pt?pt.how:'')}
+  var t='<div class="tw"><table class="ct"><tr><th></th><th>'+n1+'</th><th>'+n2+'</th></tr>';
+  t+=row('Уровень',ln(la),ln(lb));
+  t+=row('Архетип',A1.arche,B1.arche);
+  t+=row('Проводник','<b>'+a.p+'</b> — '+VP[v][a.p],'<b>'+b.p+'</b> — '+VP[v][b.p]);
+  t+=row('Манера','<b>'+SIGNS[sa]+'</b>: '+SM[sa],'<b>'+SIGNS[sb]+'</b>: '+SM[sb]);
+  t+=row('Где в жизни',a.d.house?'<b>'+a.d.house+' дом</b>: '+HOUSE_V[a.d.house]:'<span class="small">тело — без домов</span>',b.d.house?'<b>'+b.d.house+' дом</b>: '+HOUSE_V[b.d.house]:'<span class="small">тело — без домов</span>');
+  t+=row('Главная связь',con(aa),con(ba));
+  t+=row('Слой',a.layer==='голова'?'в голове: осознаёт и хочет':'в теле: проявляется на автомате',b.layer==='голова'?'в голове: осознаёт и хочет':'в теле: проявляется на автомате');
+  var da=degNote(a.p,a.d.lon,a.pos),db=degNote(b.p,b.d.lon,b.pos);if(da.length||db.length)t+=row('Особый градус',da.join('; ')||'—',db.join('; ')||'—');
+  t+='</table></div>';
+  // итог словами
+  var same=la.ceil===lb.ceil,s='';
+  s+=same?'Оба — <b>'+A1.ladder+'</b>, но звучит это по-разному. ':'Уровни разные, и почерк тоже. ';
+  s+=n1+' — <b>'+A1.arche.toLowerCase()+'</b>: '+v.toLowerCase()+' вектор идёт '+VP[v][a.p].split('. ')[0]+', манера — '+SM[sa]+(a.d.house?', сфера — '+HOUSE[a.d.house]:'')+'. ';
+  s+=n2+' — <b>'+B1.arche.toLowerCase()+'</b>: '+VP[v][b.p].split('. ')[0]+', манера — '+SM[sb]+(b.d.house?', сфера — '+HOUSE[b.d.house]:'')+'. ';
+  if(a.p===b.p&&sa===sb)s+='Проводник и знак совпадают, поэтому вся разница — в доме и связях: именно они делают одинаковое разным. ';
+  else if(a.p===b.p)s+='Проводник один и тот же — '+a.p+', — но знак меняет манеру: со стороны это выглядит как два разных человека с одним даром. ';
+  var ta=aa?pairText(a.p,aa.q,aa.k):null,tb=ba?pairText(b.p,ba.q,ba.k):null;
+  if(ta&&tb)s+='«Вкус» вектору задают связи. '+n1+': он окрашен темой «'+ta.about+'». '+n2+': темой «'+tb.about+'».';
+  else if(ta||tb)s+=(ta?n1:n2)+': вектор сплетён с темой «'+(ta||tb).about+'». '+(ta?n2:n1)+': звучит чище, без примесей.';
+  if(a.layer!==b.layer)s+=' '+(a.layer==='голова'?n1:n2)+' живёт этим осознанно, '+(a.layer==='голова'?n2:n1)+' — в теле, на автомате.';
+  return t+'<p class="sum">'+s+'</p>';
+}
+// Сравнение одного вектора у 2–3 людей: без «выше/ниже», только разные цвета
+function compareMulti(v,S,Lv,names,rs){
+  var T=S.map(function(s){return s.top}),SG=T.map(function(a){return Math.floor(a.d.lon/30)}),AS=T.map(function(a){return aspOf(a,1)[0]});
+  function row(lbl,f){return'<tr><th>'+lbl+'</th>'+T.map(function(a,i){return'<td>'+f(a,i)+'</td>'}).join('')+'</tr>'}
+  var t='<div class="tw"><table class="ct"><tr><th></th>'+names.map(function(n,i){return'<th>'+n+' <span class="small">'+pill(rs[i]._tot[v])+'</span></th>'}).join('')+'</tr>';
+  t+=row('Цвет',function(a,i){return'<span class="arche">'+S[i].arche+'</span>'});
+  t+=row('Проводник',function(a){return'<b>'+a.p+'</b> — '+VP[v][a.p]});
+  t+=row('Манера',function(a,i){return'<b>'+SIGNS[SG[i]]+'</b>: '+SM[SG[i]]});
+  t+=row('Где в жизни',function(a){return a.d.house?'<b>'+a.d.house+' дом</b>: '+HOUSE_V[a.d.house]:'<span class="small">тело — без домов</span>'});
+  t+=row('Главная связь',function(a,i){var x=AS[i];if(!x)return'<span class="small">точных связей нет — дар звучит чисто, без примесей</span>';return litBond(a.p,x.q,x.k,x.o)});
+  t+=row('Слой',function(a){return a.layer==='голова'?'в голове: осознаёт и хочет':'в теле: проявляется на автомате'});
+  var dn=T.map(function(a){return degNote(a.p,a.d.lon,a.pos)});if(dn.some(function(x){return x.length}))t+=row('Особый градус',function(a,i){return dn[i].join('; ')||'—'});
+  t+='</table></div>';
+  var s='<p class="sum">'+T.map(function(a,i){return litPerson(v,S[i],names[i])}).join('<br><br>')+'<br><br><b>Вместе.</b> '+litGroup(v,S,names);
+  return t+s+'</p>';
+}
+
+// ===== Звуковой образ карты: 30° = полутон, аспект = интервал, дом = такт =====
+var NOTE=["До","До♯","Ре","Ре♯","Ми","Фа","Фа♯","Соль","Соль♯","Ля","Ля♯","Си"];
+var OCT={"Луна":5,"Меркурий":5,"Венера":5,"Солнце":4,"Марс":4,"Юпитер":3,"Сатурн":3,"Уран":3,"Нептун":3,"Плутон":2,"Восх. узел":6,"Лилит":2,"ASC":3};
+var TIMBRE={"Солнце":["sawtooth",1600],"Луна":["sine",4000],"Меркурий":["square",2400],"Венера":["triangle",5000],"Марс":["sawtooth",2600],"Юпитер":["triangle",3000],"Сатурн":["square",700],"Уран":["sawtooth",3200],"Нептун":["sine",2000],"Плутон":["sawtooth",500],"Восх. узел":["sine",6000],"Лилит":["triangle",400],"ASC":["sine",900]};
+var VOICE={"Солнце":"тёплый, ровный, в центре","Луна":"мягкий, чистый, как голос","Меркурий":"звонкий, быстрый, высокий","Венера":"нежный, флейтовый","Марс":"яркий, резкий, медный","Юпитер":"широкий, округлый","Сатурн":"глухой, низкий, строгий","Уран":"колкий, электрический","Нептун":"дрожащий, туманный, долгий","Плутон":"самый низкий, гудящий","Восх. узел":"колокольчик сверху","Лилит":"тёмный подземный гул","ASC":"тихий бурдон — фон, на котором всё звучит"};
+var IVL=[["унисон","сливаются в один голос — сила без сомнений"],["малая секунда","трутся, как два соседних голоса — острое, щемящее чувство"],["большая секунда","шаг рядом — движение, беспокойство"],["малая терция","минор — глубина, сдержанная грусть, серьёзность"],["большая терция","мажор — светло, открыто, естественно"],["кварта","чистая, но неустойчивая — хочется разрешения, движения дальше"],["тритон","самый напряжённый интервал — «дьявол в музыке», требует выхода"],["квинта","самый устойчивый — опора, ясность, сила"],["малая секста","нежная печаль, тоска по далёкому"],["большая секста","тёплая, песенная, открытая"],["малая септима","незавершённость, вопрос без ответа"],["большая септима","острое стремление, почти касание"]];
+function midiOf(lon,oct){return 12*(oct+1)+lon/30}
+function noteName(lon){var s=lon/30,i=Math.floor(s),c=Math.round((s-i)*100);return NOTE[i%12]+(c?' '+(c>0?'+':'')+c+'¢':'')}
+function noteNameRound(lon){var s=lon/30,i=Math.round(s)%12;return NOTE[i]}
+function hz(m){return 440*Math.pow(2,(m-69)/12)}
+var ACX=null,MASTER=null;
+function ctx(){if(!ACX){ACX=new (window.AudioContext||window.webkitAudioContext)();MASTER=ACX.createDynamicsCompressor();var g=ACX.createGain();g.gain.value=.8;MASTER.connect(g);g.connect(ACX.destination)}if(ACX.state==='suspended')ACX.resume();return ACX}
+function stopAll(){if(ACX){try{ACX.close()}catch(e){}ACX=null}}
+function voice(p,lon,t0,dur,vol,pan){
+  var c=ctx(),tb=TIMBRE[p]||["sine",2000],o=c.createOscillator(),f=c.createBiquadFilter(),g=c.createGain(),pn=c.createStereoPanner?c.createStereoPanner():null;
+  o.type=tb[0];o.frequency.value=hz(midiOf(lon,OCT[p]||4));f.type='lowpass';f.frequency.value=tb[1];
+  if(p==="Нептун"||p==="Уран"){var l=c.createOscillator(),lg=c.createGain();l.frequency.value=p==="Нептун"?4.5:7;lg.gain.value=p==="Нептун"?3:2;l.connect(lg);lg.connect(o.frequency);l.start(t0);l.stop(t0+dur+1.5)}
+  var a=p==="Марс"||p==="Меркурий"?.02:.12,rel=p==="Нептун"?2:.8;
+  g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(vol,t0+a);g.gain.setValueAtTime(vol,t0+dur);g.gain.exponentialRampToValueAtTime(.0005,t0+dur+rel);
+  o.connect(f);f.connect(g);if(pn){pn.pan.value=Math.max(-1,Math.min(1,pan||0));g.connect(pn);pn.connect(MASTER)}else g.connect(MASTER);
+  o.start(t0);o.stop(t0+dur+rel+.1);
+}
+function panOf(lon,asc){var th=(lon-asc)*Math.PI/180;return -Math.cos(th)*.8}
+function pts(r,layer){ // точки карты для звука
+  var det=layer==='тело'?r.design.det:r.natal.det,pos=layer==='тело'?r.pD:r.pN,asc=layer==='тело'?0:r.cusps[1],o=[];
+  var mx=0;for(var p in det)mx=Math.max(mx,det[p].weight);
+  for(p in det)o.push({p:p,lon:det[p].lon,w:det[p].weight/mx,h:det[p].house,pan:layer==='тело'?0:panOf(det[p].lon,asc)});
+  o.push({p:"Восх. узел",lon:pos["Восх. узел"],w:.35,h:null,pan:0});o.push({p:"Лилит",lon:pos["Лилит"],w:.35,h:null,pan:0});
+  return o;
+}
+function playChord(r,layer,t0,dur){var c=ctx(),t=t0||c.currentTime+.05;pts(r,layer).forEach(function(x){voice(x.p,x.lon,t,dur||3,.035+.07*x.w,x.pan)});if(layer!=='тело')voice("ASC",r.cusps[1],t,dur||3,.05,0);return t+(dur||3)}
+function playHouses(r,mark){
+  var c=ctx(),t=c.currentTime+.1,beat=.55,P=pts(r,'голова');
+  voice("ASC",r.cusps[1],t,beat*12+.5,.04,0);
+  for(var h=1;h<=12;h++){var tt=t+(h-1)*beat;P.filter(function(x){return x.h===h}).forEach(function(x){voice(x.p,x.lon,tt,beat*1.6,.05+.09*x.w,x.pan)});
+    if(mark)(function(h,tt){setTimeout(function(){mark(h)},(tt-c.currentTime)*1000)})(h,tt)}
+  if(mark)setTimeout(function(){mark(0)},(t+12*beat-c.currentTime)*1000);
+  playChord(r,'голова',t+12*beat+.2,3.5);
+}
+function playVector(r,v){var c=ctx(),t=c.currentTime+.05,cs=carriers(r,v);cs.forEach(function(x,i){voice(x.p,x.d.lon,t+i*.35,2.6-i*.35,.11,0)});}
+function playHeadBody(r){var c=ctx(),t=c.currentTime+.05;var e=playChord(r,'голова',t,2.8);playChord(r,'тело',e+.6,2.8)}
+// ---- описание словами ----
+function soundPortrait(r){
+  var d=r.natal.det,sun=d["Солнце"].lon,moon=d["Луна"].lon,asc=r.cusps[1];
+  var ivl=Math.round(norm(moon-sun)/30)%12;
+  var loud=Object.keys(d).sort(function(a,b){return d[b].weight-d[a].weight}).slice(0,2);
+  var fam={tri:0,sq:0,opp:0,q:0,conj:0};r.natal.asp.forEach(function(a){if(a[3]>3)return;if(a[2]==="Тригон"||a[2]==="Секстиль")fam.tri++;else if(a[2]==="Квадрат")fam.sq++;else if(a[2]==="Оппозиция")fam.opp++;else if(a[2]==="Квиконс")fam.q++;else fam.conj++});
+  var houses={};Object.keys(d).forEach(function(p){if(d[p].house)houses[d[p].house]=(houses[d[p].house]||0)+1});
+  var filled=Object.keys(houses).length,cl=Object.keys(houses).filter(function(h){return houses[h]>=3});
+  var mood=fam.tri>fam.sq+fam.opp?'светлое, мажорное: больше больших терций, чем малых и тритонов — психика склонна к гармонии и лёгкости':fam.opp>=fam.sq&&fam.opp>=fam.tri?'напряжённое: много тритонов — внутри всё время звучит вопрос, требующий разрешения, это двигатель':fam.sq>fam.tri?'минорное, глубокое: малых терций больше, чем больших — серьёзность, глубина, сдержанность':'смешанное: мажор и минор в равновесии';
+  var s='<p><b>Основной тон</b> — Солнце: <b>'+noteName(sun)+'</b>. Это тоника, вокруг которой строится вся мелодия.</p>';
+  s+='<p><b>Тон подачи</b> — Асцендент: <b>'+noteName(asc)+'</b>. Тихий бурдон, на фоне которого человек звучит для других.</p>';
+  s+='<p><b>Солнце и Луна</b> — '+IVL[ivl][0]+': '+IVL[ivl][1]+'. Так между собой звучат воля и чувства.</p>';
+  s+='<p><b>Самые громкие голоса</b>: '+loud.map(function(p){return p+' ('+noteName(d[p].lon)+', '+VOICE[p]+')'}).join(' и ')+'.</p>';
+  s+='<p><b>Общее звучание</b> — '+mood+'. Точных аспектов: гармоничных '+fam.tri+', квадратов '+fam.sq+', оппозиций '+fam.opp+', квиконсов '+fam.q+', соединений '+fam.conj+'.</p>';
+  s+='<p><b>Ритм</b>: звучат '+filled+' тактов из 12'+(filled<=6?' — ритм разреженный, с паузами: жизнь сосредоточена в немногих сферах':filled>=9?' — ритм плотный, почти без пауз: человек присутствует везде':' — ритм умеренный')+'.'+(cl.length?' Аккорд-кластер в '+cl.map(function(h){return h+' такте ('+HOUSE[h]+')'}).join(', ')+' — сгусток, где много голосов звучит сразу.':'')+'</p>';
+  return s;
+}
+function wheelSVG(r,id){
+  var asc=r.cusps[1],cx=150,cy=150,R1=128,R2=100,h='<svg viewBox="0 0 300 300" class="wheel" id="'+id+'" role="img" aria-label="Нотный круг карты">';
+  function xy(lon,rad){var a=Math.PI-(lon-asc)*Math.PI/180;return[cx+rad*Math.cos(a),cy-rad*Math.sin(a)]}
+  h+='<circle cx="150" cy="150" r="'+R1+'" fill="none" stroke="var(--rule2)"/><circle cx="150" cy="150" r="'+R2+'" fill="none" stroke="var(--rule)"/>';
+  for(var i=0;i<12;i++){var a=xy(i*30,R2),b=xy(i*30,R1),m=xy(i*30+15,(R1+R2)/2);h+='<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="var(--rule2)"/><text x="'+m[0]+'" y="'+(m[1]+4)+'" text-anchor="middle" class="wn">'+NOTE[i]+'</text>'}
+  for(var k=1;k<=12;k++){var c=r.cusps[k],p1=xy(c,30),p2=xy(c,R2),mid=xy(c+norm(r.cusps[k%12+1]-c)/2,R2-14);h+='<line class="hl" data-h="'+k+'" x1="'+p1[0]+'" y1="'+p1[1]+'" x2="'+p2[0]+'" y2="'+p2[1]+'" stroke="var(--rule)" stroke-width="'+(k===1||k===10?1.6:.6)+'"/><text x="'+mid[0]+'" y="'+(mid[1]+3)+'" text-anchor="middle" class="wh" data-h="'+k+'">'+k+'</text>'}
+  var d=r.natal.det;Object.keys(d).forEach(function(p){var q=xy(d[p].lon,R2-34);h+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(3+5*d[p].weight/12)+'" fill="var(--accent)" opacity=".85" class="wp" data-h="'+d[p].house+'"><title>'+p+' — '+noteName(d[p].lon)+'</title></circle>';var lb=xy(d[p].lon,R2-52);h+='<text x="'+lb[0]+'" y="'+(lb[1]+3)+'" text-anchor="middle" class="wl">'+({"Солнце":"Сол","Луна":"Лун","Меркурий":"Мер","Венера":"Вен","Марс":"Мар","Юпитер":"Юп","Сатурн":"Сат","Уран":"Ур","Нептун":"Неп","Плутон":"Плу"})[p]+'</text>'});
+  r.natal.asp.forEach(function(a){if(a[3]>3||!d[a[0]]||!d[a[1]]||a[2]==="Соединение")return;var p=xy(d[a[0]].lon,R2-34),q=xy(d[a[1]].lon,R2-34);var col=a[2]==="Тригон"||a[2]==="Секстиль"?'var(--good)':a[2]==="Квиконс"?'var(--brass)':'var(--bad)';h+='<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+q[0]+'" y2="'+q[1]+'" stroke="'+col+'" stroke-width=".8" opacity=".55"/>'});
+  return h+'</svg>';
+}
+function noteTable(r){
+  var d=r.natal.det,dd=r.design.det;
+  return'<div class="tw"><table class="pt"><tr><th>Голос</th><th>Нота (голова)</th><th>Нота (тело)</th><th>Такт</th><th>Тембр</th></tr>'+Object.keys(d).map(function(p){return'<tr><td><b>'+p+'</b></td><td class="mono">'+noteName(d[p].lon)+' <span class="small">'+OCT[p]+' окт.</span></td><td class="mono">'+noteName(dd[p].lon)+'</td><td>'+(d[p].house||'—')+'</td><td class="small">'+VOICE[p]+'</td></tr>'}).join('')+'<tr><td><b>Восх. узел</b></td><td class="mono">'+noteName(r.pN["Восх. узел"])+'</td><td class="mono">'+noteName(r.pD["Восх. узел"])+'</td><td>—</td><td class="small">'+VOICE["Восх. узел"]+'</td></tr><tr><td><b>Лилит</b></td><td class="mono">'+noteName(r.pN["Лилит"])+'</td><td class="mono">'+noteName(r.pD["Лилит"])+'</td><td>—</td><td class="small">'+VOICE["Лилит"]+'</td></tr></table></div>';
+}
+
+// ===== Литературный слой: психика вместо терминов, термины — мелкой подписью =====
+var PSY={"Солнце":"собственное «я»","Луна":"мир чувств и привычек","Меркурий":"ум-переводчик","Венера":"вкус и способность любить","Марс":"воля к действию","Юпитер":"вера и широта души","Сатурн":"внутренний архитектор, строгий и терпеливый","Уран":"искра свободы и внезапных озарений","Нептун":"тоска по бесконечному, интуиция","Плутон":"самая глубинная сила психики — та, что умеет разрушать и возрождать","ASC":"«лицо», с которым человек входит в мир","MC":"призвание и место среди людей"};
+var PSY_SHORT={"Солнце":"«я»","Луна":"чувства","Меркурий":"ум","Венера":"любовь и вкус","Марс":"воля","Юпитер":"вера","Сатурн":"внутренний архитектор","Уран":"искра свободы","Нептун":"интуиция","Плутон":"глубинная сила","ASC":"«лицо»","MC":"призвание"};
+var VESS={"Звуковой":"поиск смысла — зачем всё это и как устроен мир","Зрительный":"способность чувствовать и видеть красоту","Обонятельный":"чутьё на скрытое — кто чего хочет на самом деле, где опасность и где выход","Оральный":"дар слова, которое соединяет людей","Анальный":"тяга к качеству, памяти и мастерству","Кожный":"чувство меры, правил и выгоды","Мышечный":"телесная сила и ритм","Уретральный":"порыв вести за собой"};
+var SIGN_LIT=["прямо и первым, как первый удар — без разгона","неторопливо, телесно, с весом и основательностью","в разговоре, в лёгком перебросе мыслей и людей","бережно, изнутри своего круга","с открытым сердцем, на свету","точно, вдумчиво, через пользу","через другого человека, в поиске равновесия","в глубину, до самого дна, без полутонов","через большую идею и дальний горизонт","медленно и стратегически, на годы вперёд","непохоже на других, ради общего будущего","растворяясь, чувствуя всё и всех"];
+var SIGN_WORD=["напор","основательность","игра ума","забота о своих","сияние","точность","дипломатия","погружение до дна","вдохновение большой идеей","стратегия","свобода","растворение"];
+var HOUSE_LIT=["","прямо в лице — его видно с порога","в ресурсах и опоре — дар становится ремеслом и заработком","в разговорах и ближнем круге","в корнях и тишине — снаружи не видно, но держит всё","в творчестве, игре и любви — в том, что создаётся для радости","в будничном ремесле и служении","в паре — раскрывается рядом с другим человеком","в кризисах и глубине — включается, когда ставки высоки","в мировоззрении и учении","в профессии и на виду у людей","в сообществе и общем деле","за кулисами, в уединении"];
+var ASP_LIT={"Соединение":"сплавлены воедино — звучат только вместе","Тригон":"текут друг в друга, как две реки","Секстиль":"протягивают друг другу руку — союз, который надо принять","Квадрат":"трутся друг о друга и высекают искру — это трение и есть двигатель","Оппозиция":"смотрят друг на друга, как в зеркало, — человек качается между ними и часто встречает вторую сторону в других людях","Квиконс":"говорят на разных языках и вынуждены всё время договариваться"};
+var CF_LIT={"Перст судьбы":"точка неизбежного роста","Тау-квадрат":"натянутый лук","Большой тригон":"замкнутый сад гармонии","Парус":"сад гармонии с выходом в мир"};
+var VSHORT={"Звуковой":"поиск смысла","Зрительный":"дар чувствовать и видеть красоту","Обонятельный":"чутьё на скрытое","Оральный":"дар слова","Анальный":"тяга к мастерству","Кожный":"чувство меры и правил","Мышечный":"телесная сила","Уретральный":"порыв вести за собой"};
+function litHow(p,q,k){
+  if(p===q){var pt=pairText(p,q,k);return pt?pt.how:''}
+  var key=PORD.indexOf(p)<PORD.indexOf(q)?p+"|"+q:q+"|"+p,t=PAIR[key];if(!t)return'';
+  var easy=t[1],hard=t[2]==="—"?t[1]:t[2];
+  if(k==="Соединение")return easy===hard?easy:'дар — '+easy+'; обратная сторона — '+hard;
+  if(k==="Тригон"||k==="Секстиль")return easy;
+  return hard;
+}
+function precWord(o){return o<=0.3?'почти идеально точно':o<=1?'очень точно':o<=2?'отчётливо':'заметно'}
+function tech(s){return' <span class="tech">('+s+')</span>'}
+function litBond(p,q,k,o){var hw=litHow(p,q,k);return capital(PSY_SHORT[p]||p)+' и '+(PSY_SHORT[q]||q)+' '+ASP_LIT[k]+(hw?'. '+capital(hw):'')+'.'+tech(p+' '+ASYM[k]+' '+nameOf(q)+', '+k.toLowerCase()+' '+o.toFixed(1)+'°')}
+function litPerson(v,S,name){
+  var a=S.top,s=Math.floor(a.d.lon/30),x=aspOf(a,1)[0];
+  var t='<b>'+name+'</b> — <i>'+SIGN_WORD[s]+'</i>. '+capital(VESS[v])+'. Проводник этого дара — '+PSY[a.p]+'. Звучит он '+SIGN_LIT[s]+'.';
+  if(a.d.house)t+=' Живёт '+HOUSE_LIT[a.d.house]+'.';else t+=' Это слой тела: проявляется само, без участия воли.';
+  if(x){var hw=litHow(a.p,x.q,x.k);t+=' '+capital(PSY_SHORT[a.p]||a.p)+' и '+(PSY_SHORT[x.q]||nameOf(x.q))+' '+ASP_LIT[x.k]+' ('+precWord(x.o)+')'+(hw?': '+hw:'')+'.'}
+  if(a.d.dig[0]>0)t+=' Здесь эта сила дома — проявляется легко и чисто.';else if(a.d.dig[0]<0)t+=' Здесь этой силе неуютно — она проявляется через усилие, зато с особой глубиной.';
+  var dn=degNote(a.p,a.d.lon,a.pos);if(dn.length)t+=' '+capital(dn[0])+'.';
+  return t+tech(S.code);
+}
+function litGroup(v,S,names){
+  var T=S.map(function(s){return s.top});var ps={};T.forEach(function(a){ps[a.p]=(ps[a.p]||0)+1});
+  var voices=T.map(function(a,i){return names[i]+' — '+SIGN_WORD[Math.floor(a.d.lon/30)]}).join(', ');
+  if(Object.keys(ps).length===1)return'Один и тот же дар — '+VSHORT[v]+' — звучит у вас '+(names.length===2?'двумя':'тремя')+' голосами: '+voices+'. Проводник общий ('+PSY_SHORT[T[0].p]+'), но знак, дом и связи делают из него разные инструменты одного оркестра. Никто не «сильнее» — это разные цвета.';
+  return capital(VSHORT[v])+' у каждого из вас идёт своей дорогой: '+T.map(function(a,i){return names[i]+' — через '+PSY_SHORT[a.p]+' ('+SIGN_WORD[Math.floor(a.d.lon/30)]+')'}).join(', ')+'. Разные пути к одному желанию — разные цвета одной радуги.';
+}
+function litCf(c){
+  if(c[0]==='Перст судьбы')return'<b>'+capital(CF_LIT[c[0]])+'.</b> На вершине — '+PSY_SHORT[c[1]]+': эта часть души стоит между двумя силами — '+c[2].map(function(p){return PSY_SHORT[p]}).join(' и ')+', — и ей приходится всё время переплавлять их требования в одно. Это не поломка, а место, где душа растёт быстрее всего.'+tech('перст судьбы, вершина '+c[1]+'; '+c[2].join(', '));
+  if(c[0]==='Тау-квадрат')return'<b>'+capital(CF_LIT[c[0]])+'.</b> '+capital(PSY_SHORT[c[2][0]])+' и '+PSY_SHORT[c[2][1]]+' тянут в разные стороны, а '+PSY_SHORT[c[1]]+' — стрела под напряжением. Огромная сила выстрела и такая же усталость, если тетиву не отпускать.'+tech('тау-квадрат, вершина '+c[1]+'; '+c[2].join(', '));
+  if(c[0]==='Большой тригон')return'<b>'+capital(CF_LIT[c[0]])+'.</b> '+c[2].map(function(p){return capital(PSY_SHORT[p])}).join(', ')+' питают друг друга по кругу. Внутри — покой и самодостаточность; наружу этот сад открывается только через дело или задачу.'+tech('большой тригон: '+c[2].join(', '));
+  if(c[0]==='Парус')return'<b>'+capital(CF_LIT[c[0]])+'.</b> Фокус — '+PSY_SHORT[c[1]]+': через эту часть души внутренняя гармония выходит в мир, как ветер в парус.'+tech('парус, фокус '+c[1]);
+  return c[0];
+}
+
+// ===== Связки векторов (по смыслу законов сочетания СВП), литературным языком =====
+var BORD=["Уретральный","Анальный","Кожный","Мышечный","Звуковой","Зрительный","Обонятельный","Оральный"];
+var LOWER=["Уретральный","Анальный","Кожный","Мышечный"];
+var QUART={"Уретральный":"времени","Анальный":"времени","Кожный":"пространства","Мышечный":"пространства","Звуковой":"информации","Зрительный":"информации","Обонятельный":"энергии","Оральный":"энергии"};
+var QMEAN={"времени":"будущее и прошлое — порыв вперёд и память о пройденном","пространства":"расчёт и выносливость — как занять место и удержать его","информации":"смысл и образ — то, что понято умом, и то, что увидено сердцем","энергии":"чутьё и слово — то, что чуется без слов, и то, что сказано вслух"};
+var BPREF={"Уретральный":"уретрально","Анальный":"анально","Кожный":"кожно","Мышечный":"мышечно","Звуковой":"звуко","Зрительный":"зрительно","Обонятельный":"обонятельно","Оральный":"орально"};
+var BEND={"Уретральный":["уретральная","уретральный"],"Анальный":["анальная","анальный"],"Кожный":["кожная","кожный"],"Мышечный":["мышечная","мышечный"],"Звуковой":["звуковая","звуковой"],"Зрительный":["зрительная","зрительный"],"Обонятельный":["обонятельная","обонятельный"],"Оральный":["оральная","оральный"]};
+// [архетип, дар, тень, для женщины, для мужчины]
+var BUND={
+"Уретральный|Анальный":["Вождь с памятью","Порыв в будущее и верность прошлому в одном человеке. Размах ведёт вперёд, а основательность не даёт оторваться от корней: поворот получается мощным, но плавным, решения — большими и взвешенными.","Когда силе некуда деться, человек одновременно не может ждать и не может бросить: нетерпение и упрямство сразу, обида на тех, кто не оценил размаха."],
+"Уретральный|Кожный":["Газ и тормоз","Стихию, которая сносит препятствия, сопровождает внутренний расчётчик: умеет беречь силы, обходить стену вместо того, чтобы ломать её, и считать на десять ходов. Предприниматель большого масштаба.","Два противоположных темпа: щедрость против бережливости. В стрессе — рывки: то раздаёт всё, то начинает мелочно считать."],
+"Уретральный|Мышечный":["Вожак с дружиной","Порыв вперёд, наполненный телесной мощью: выносливость, бесстрашие, способность вести людей в самом прямом, физическом смысле.","Без цели — сила ради силы, риск ради риска."],
+"Уретральный|Звуковой":["Пророк","Масштаб встречается с бездной смысла. Эти два вектора не смешиваются, а сменяют друг друга фазами: человек то дерзко ломает рамки, то уходит в тишину и приносит оттуда идею, которая меняет направление для многих. Поэты, композиторы, реформаторы.","Если смысл не найден, огромный запас жизни обращается против самого человека: тяжёлые, пустые состояния при избытке сил. Такой связке жизненно нужно своё дело большого масштаба."],
+"Уретральный|Зрительный":["Свет на сцене","Щедрость вожака, окрашенная состраданием: ведёт за собой не приказом, а чувством, красотой, эмоцией. На сцене такие люди светятся ярче других.","Эмоциональные перепады при огромной энергии; драма, страх потерять любовь своей «стаи»."],
+"Уретральный|Обонятельный":["Пассионарий","Чутьё на выживание соединено с порывом вперёд: такие люди чувствуют, куда повернёт история, и сами её поворачивают. Стратеги больших перемен.","Полная закрытость при огромном влиянии; в стрессе — недоверие ко всем."],
+"Уретральный|Оральный":["Голос, который ведёт","Слово, которое собирает людей, и масштаб, который ведёт их вперёд: харизматичный оратор-вожак.","Слово без ответственности, громкость вместо смысла."],
+"Анальный|Кожный":["Манёвренный стратег","Умеет и быстро решить, и довести до конца с качеством. Руководители, предприниматели, тренеры. Самое частое сочетание в наше время.","Противоположные темпы спорят: в стрессе — ступор там, где нужна скорость, и суета там, где нужна усидчивость. Тело отзывается первым — сердце, давление, спина."],
+"Анальный|Мышечный":["Мастер с крепкими руками","Основательность, ставшая телесной надёжностью: ремесло, строительство, хирургия, всё, где нужны терпение и сила рук.","Тяжеловесность и упрямство: «никуда не сдвинешь»."],
+"Анальный|Звуковой":["Писатель-систематик","Глубину смысла поддерживают усидчивость и любовь к детали: писатели, философы, учёные, программисты — люди, способные годами строить большую систему мысли.","Если смысл не наполнен, а заслуги не признаны — уход в себя, мрачный сарказм, отрицание всего вокруг."],
+"Анальный|Зрительный":["Учитель и художник","Чуткость к красоте плюс верность делу и прекрасная память: художники, скульпторы, фотографы, режиссёры, педагоги, врачи. Хранители культуры.","Страхи и обиды; трудно отказать, трудно выйти за границу привычного.","Женщина с этой связкой — хранительница тепла и культуры: дом, где красиво и надёжно, ученики, которых помнит по именам через двадцать лет.","Мужчина с этой связкой — учитель по природе: в древности он оставался рядом с детьми и передавал знание. Сегодня — педагог, врач, художник. Обратная сторона — «хороший мальчик», который боится огорчить и не умеет сказать «нет»."],
+"Анальный|Обонятельный":["Хранитель с чутьём","Чутьё на угрозу соединено с памятью и осторожностью: аналитик рисков, контролёр, глубокий финансист.","Подозрительность и закрытость."],
+"Анальный|Оральный":["Рассказчик-летописец","Память и слово: историк, лектор, рассказчик, который знает, как было на самом деле, и умеет этим увлечь.","Занудство и обидчивость на слушателей; слово как оружие обиды."],
+"Кожный|Мышечный":["Крепкий добытчик","Расчёт, ставший выносливым: военные, спортсмены, организаторы, которые сами выходят в поле.","Жёсткость и узость: только польза, только результат."],
+"Кожный|Звуковой":["Инженер идеи","Смысл получает дисциплину: инженеры, системные архитекторы, исследователи, которые доводят мысль до работающего механизма.","Фанатичная преданность идее, когда ради схемы забывают людей."],
+"Кожный|Зрительный":["Чувство в движении","Гибкость и чувство: умеют выразить эмоцию телом, жестом, формой, стилем. Сцена, мода, дизайн, медицина, всё, где нужна тонкая подстройка к людям.","Тревога и страхи, желание нравиться любой ценой, жертвенность.","Кожно-зрительная женщина — особый тип. В древности она была дневной охранницей стаи: рядом с мужчинами на охоте и в походе, первой видела опасность и первой пугалась. Из этого страха выросли её дары — сострадание, культура, искусство. Сегодня это актрисы, модели, учительницы, врачи, волонтёры: те, кто создаёт эмоциональные связи между всеми. В неразвитии — страхи, демонстрация, жизнь «бабочкой» от одного внимания к другому.","Кожно-зрительный мужчина — нежный и гибкий; в древности он почти не выживал, а сегодня находит себя в моде, дизайне, танце, на сцене, в медицине. Его сила — тонкость, а не напор."],
+"Кожный|Обонятельный":["Тихий расчётчик","Расчёт плюс чутьё: переговорщик и финансист, который видит выгоду там, где её никто не видит.","Холодный цинизм."],
+"Кожный|Оральный":["Слово, которое продаёт","Оратор-продавец, ведущий, мастер презентации: слово, которое сразу превращается в результат.","В неразвитии — скандальность и склоки, жалобы на всех."],
+"Мышечный|Звуковой":["Тихий богатырь мысли","Телесное терпение даёт смыслу спокойную, неторопливую глубину.","Инертность и уход в себя без выхода: телу нужна понятная работа, иначе тяжесть давит на мысль."],
+"Мышечный|Зрительный":["Добрый великан","Сила с сердцем: защитник слабых, тот, рядом с кем спокойно.","Мягкость, которой легко управлять.","","Мужчина с этой связкой — большой и добрый, сильный и мягкий одновременно. Обратная сторона — бесхарактерность: им легко управлять."],
+"Мышечный|Обонятельный":["Страж","Тело и чутьё: охрана, разведка, выживание в экстремальных условиях.","Глухая настороженность к «чужим»."],
+"Мышечный|Оральный":["Заводила","Народный оратор, ведущий праздников, спортивный комментатор: голос, в котором есть тело.","Грубость."],
+"Звуковой|Зрительный":["Учёный-художник","Внутренний и внешний мир собраны вместе: абстракция и образ, наука и искусство. Огромный потенциал в исследовании и в творчестве.","Качели между жаждой уединения и жаждой общения — со стороны выглядит как перепады настроения."],
+"Звуковой|Обонятельный":["Тихий стратег","Два интроверта: молчаливая глубина и звериное чутьё. Аналитик, разведчик, стратег; эта связка хорошо защищает психику от срывов.","Полная закрытость и одиночество."],
+"Звуковой|Оральный":["Голос из тишины","Слово, рождённое из глубины: опера, рэп, проповедь, поэзия вслух.","Тишина и шум спорят: человек может «заглушать» себя речью, сам ругается, но чужую брань не выносит."],
+"Зрительный|Обонятельный":["Разведчик за маской","Располагает к себе и видит насквозь: дипломатия, разведка, парфюмерия.","Самое острое внутреннее противоречие: чувства подавляются, человек прячется за зрительной маской."],
+"Зрительный|Оральный":["Ведущий","Публичность, проникновенность и юмор вместе: телеведущие, артисты разговорного жанра.","Культура против «антикультуры»: то сочувствует, то жёстко высмеивает ради публики."],
+"Обонятельный|Оральный":["Политик","Чует ситуацию и говорит так, что нечего возразить: переговорщик, интервьюер, политик.","Язык как способ скрыть мысли."]
+};
+var BTRI={
+"Анальный|Кожный|Зрительный":"Мастер красоты с деловой хваткой: чувство формы, качество и умение превратить это в дело — дизайн, эстетическая медицина, руководство в культуре.",
+"Уретральный|Кожный|Зрительный":"Звезда: уретральная сила, поднятая над кожно-зрительной гибкостью, делает артиста заметным среди всех остальных.",
+"Анальный|Звуковой|Зрительный":"Новатор в искусстве: художник, которому мало красоты — ему нужен смысл, поэтому он меняет язык искусства.",
+"Анальный|Кожный|Звуковой":"Учёный-инженер: идея, доведённая до механизма и выверенная до детали.",
+"Кожный|Звуковой|Зрительный":"Актёр глубины: тонкая подстройка, чувство и смысл — играет не роль, а человека.",
+"Уретральный|Звуковой|Зрительный":"Пророк с открытым сердцем: масштаб, смысл и сострадание в одном человеке."
+};
+function bKey(a,b){return BORD.indexOf(a)<BORD.indexOf(b)?a+'|'+b:b+'|'+a}
+function bRel(a,b){
+  if(a==="Мышечный"||b==="Мышечный")return'мышечный вектор — усилитель: он растворяется в соседе и даёт ему тело и выносливость';
+  if(QUART[a]===QUART[b])return'они дополняют друг друга, как две половинки (квартель '+QUART[a]+': '+QMEAN[QUART[a]]+')';
+  var la=LOWER.indexOf(a)>=0,lb=LOWER.indexOf(b)>=0;
+  if(la!==lb)return'это низ и верх — один вектор даёт силу и способ жить, другой — направление ума';
+  return'они противоположны по природе: больше внутреннего трения, но и шире возможности — при развитии оба звучат вовремя, по очереди';
+}
+function bName(vs,sex){
+  var o=vs.slice().sort(function(a,b){return BORD.indexOf(a)-BORD.indexOf(b)});
+  var head=o.slice(0,-1).map(function(v){return BPREF[v]}).join('-'),last=o[o.length-1];
+  var end=sex==='f'?BEND[last][0]:sex==='m'?BEND[last][1]:BEND[last][0];
+  var nm=(head?head+'-':'')+end;
+  return capital(nm)+(sex==='f'?' женщина':sex==='m'?' мужчина':' связка');
+}
+function bundleOf(tot){
+  var ord=BORD.slice().sort(function(a,b){return tot[b]-tot[a]});
+  var vs=ord.filter(function(v){return tot[v]>=14}).slice(0,4);
+  if(vs.length<2)vs=ord.slice(0,2);
+  return vs;
+}
+function bHead(vs,tot){ // главная пара: сильнейший нижний + сильнейший верхний
+  var lo=vs.filter(function(v){return LOWER.indexOf(v)>=0}),up=vs.filter(function(v){return LOWER.indexOf(v)<0});
+  if(lo.length&&up.length)return[lo[0],up[0]];return vs.slice(0,2);
+}
+function bundleHTML(r,sex,N,D,tot,NR){
+  var vs=bundleOf(tot),hp=bHead(vs,tot),k=bKey(hp[0],hp[1]),B=BUND[k];
+  var h='<h2>Связка векторов</h2><p class="small">В системно-векторной психологии вектор редко живёт один: обычно человек — это связка из двух–четырёх векторов, и их сочетание создаёт свой отдельный тип. Здесь в связку взяты векторы, заметные в вашем профиле (от 14%).</p>';
+  h+='<div class="sig" style="border-color:'+VCOL[hp[0]]+'"><div class="sh"><span class="sn">'+bName(vs,sex)+'</span>'+(B?'<span class="arche">'+B[0]+'</span>':'')+'</div>';
+  h+='<div class="code">'+vs.map(function(v){return'<span style="color:'+VCOL[v]+'">'+v+'</span> '+tot[v].toFixed(1)+'% — '+layerNote(v,N[v],D[v])}).join('<br>')+'</div>';
+  if(B){
+    var sp=sex==='f'?B[3]:sex==='m'?B[4]:'';
+    h+='<p><b>Дар.</b> '+B[1]+'</p>';
+    if(sp)h+='<p>'+sp+'</p>';
+    h+='<p><b>Тень.</b> '+B[2]+'</p>';
+    h+='<p class="small">Как они уживаются: '+bRel(hp[0],hp[1])+'.</p>';
+  }
+  // астрологическая сцепка проводников
+  var S1=r._sigs[hp[0]],S2=r._sigs[hp[1]];
+  if(S1&&S2){var a=S1.top,b=S2.top;
+    if(a.p===b.p)h+='<p>В вашей карте эти два вектора несёт <b>одна и та же сила</b> — '+PSY[a.p]+'. Связка спаяна изнутри: одно без другого у вас не включается.'+tech(a.p+' — проводник обоих')+'</p>';
+    else{var d=sep(a.d.lon,b.d.lon),hit=null;ASP.forEach(function(x){var o=Math.abs(d-x[0]);if(o<=4&&(!hit||o<hit.o))hit={k:x[1],o:o}});
+      if(hit)h+='<p>В вашей карте проводники этих векторов — '+PSY_SHORT[a.p]+' и '+PSY_SHORT[b.p]+' — '+ASP_LIT[hit.k]+' ('+precWord(hit.o)+'). Значит, связка у вас не просто сумма: '+(hit.k==='Квадрат'||hit.k==='Оппозиция'||hit.k==='Квиконс'?'векторы постоянно спорят, и из этого спора рождается движение.':'векторы питают друг друга и включаются вместе.')+tech(a.p+' '+ASYM[hit.k]+' '+nameOf(b.p)+' '+hit.o.toFixed(1)+'°')+'</p>';
+      else h+='<p>Проводники этих векторов — '+PSY_SHORT[a.p]+' и '+PSY_SHORT[b.p]+' — в карте напрямую не связаны: векторы звучат по очереди, каждый в своей сфере, и переключение между ними — отдельный навык.</p>';}
+  }
+  if(NR){var sh=vs.map(function(v){var d=Math.round((NR[v]-N[v])*10)/10;return v.toLowerCase()+' '+(Math.abs(d)<1?'звучит так же':d>0?'звучит громче (+'+d+')':'уходит в тень ('+d+')')});h+='<p class="small">Связка врождённая и считается по месту рождения — переезд её не меняет. На месте проживания: '+sh.join(', ')+'. Это меняет сцену, на которой векторы проявляются, а не саму натуру.</p>'}
+  // тройка
+  if(vs.length>=3){var tk=vs.slice(0,3).sort(function(a,b){return BORD.indexOf(a)-BORD.indexOf(b)}).join('|');if(BTRI[tk])h+='<p><b>Тройка.</b> '+BTRI[tk]+'</p>'}
+  // остальные пары
+  var rest=[];for(var i=0;i<vs.length;i++)for(var j=i+1;j<vs.length;j++){var kk=bKey(vs[i],vs[j]);if(kk!==k&&BUND[kk])rest.push('<p><b>'+capital(BPREF[kk.split('|')[0]])+'-'+BEND[kk.split('|')[1]][0]+' пара</b> — <i>'+BUND[kk][0].toLowerCase()+'</i>. '+BUND[kk][1]+' <span class="small">Тень: '+BUND[kk][2].charAt(0).toLowerCase()+BUND[kk][2].slice(1)+'</span></p>')}
+  if(rest.length)h+='<details class="more"><summary>Другие пары внутри связки</summary>'+rest.join('')+'</details>';
+  h+='<p class="small">Нет хороших и плохих связок. У развитого человека векторы не воюют, а включаются вовремя; противоречия обостряются, когда свойства не находят применения.'+(sex?'':' Укажите пол в форме — для некоторых связок (кожно-зрительная женщина, анально-зрительный мужчина и др.) есть особое описание.')+'</p></div>';
+  r._bundle=bName(vs,sex)+(B?' — «'+B[0]+'»':'')+' ('+vs.map(function(v){return v+' '+tot[v].toFixed(1)+'%'}).join(', ')+')';
+  r._bvs=vs;
+  return h;
+}
+function bundleGroup(V){
+  var h='<h2>Ваши связки рядом</h2><div class="card">'+V.map(function(x){return'<p><b>'+x.name+'</b>: '+(x.r._bundle||'—')+'</p>'}).join('');
+  var Q=[];for(var i=0;i<V.length;i++)for(var j=0;j<V.length;j++){if(i===j)continue;(V[i].r._bvs||[]).forEach(function(a){(V[j].r._bvs||[]).forEach(function(b){
+    if(a!==b&&QUART[a]===QUART[b]&&BORD.indexOf(a)<BORD.indexOf(b)&&(V[i].r._bvs.indexOf(b)<0||V[j].r._bvs.indexOf(a)<0))Q.push('<p><b>'+V[i].name+'</b> приносит '+a.toLowerCase()+' вектор, <b>'+V[j].name+'</b> — '+b.toLowerCase()+'. Вместе вы собираете целую квартель '+QUART[a]+': '+QMEAN[QUART[a]]+'. То, чего меньше у одного, держит другой.</p>')})})}
+  var seen={};Q=Q.filter(function(x){if(seen[x])return false;seen[x]=1;return true});
+  h+=Q.length?Q.join(''):'<p class="small">Дополняющих пар между вашими связками нет: каждый приносит в общее своё, без зеркальных половинок.</p>';
+  return h+'</div>';
+}
+
+// ===== Расчётные точки и расширенные фигуры =====
+function oscMoon(t){ // оскулирующая орбита Луны: истинный узел и истинная Лилит (апогей)
+  var s=A.GeoMoonState(t);
+  var r=A.Ecliptic(new A.Vector(s.x,s.y,s.z,t)).vec,v=A.Ecliptic(new A.Vector(s.vx,s.vy,s.vz,t)).vec;
+  var AU=149597870.7,mu=403503.2355*86400*86400/(AU*AU*AU);
+  var R=[r.x,r.y,r.z],V=[v.x,v.y,v.z];
+  var h=[R[1]*V[2]-R[2]*V[1],R[2]*V[0]-R[0]*V[2],R[0]*V[1]-R[1]*V[0]];
+  var rn=Math.sqrt(R[0]*R[0]+R[1]*R[1]+R[2]*R[2]);
+  var vh=[V[1]*h[2]-V[2]*h[1],V[2]*h[0]-V[0]*h[2],V[0]*h[1]-V[1]*h[0]];
+  var e=[vh[0]/mu-R[0]/rn,vh[1]/mu-R[1]/rn];
+  return{node:norm(deg(Math.atan2(h[0],-h[1]))),lilith:norm(deg(Math.atan2(-e[1],-e[0])))};
+}
+var PT_LIT={
+ "Парс Фортуны":"место, где радость и удача приходят сами, без борьбы, — через то, что даётся легко",
+ "Парс Духа":"то, к чему душа тянется по собственной воле: не подарок судьбы, а собственный выбор",
+ "Лилит":"слепое пятно и тёмное искушение: сюда тянет сильнее всего, и здесь же легче всего потерять себя. Осознанная Лилит превращается в особую, ни на кого не похожую силу",
+ "Восходящий узел":"куда растёт жизнь: незнакомое, поначалу неудобное направление, которое со временем даёт смысл",
+ "Нисходящий узел":"откуда человек пришёл: врождённый навык и привычка — удобная опора, которая при злоупотреблении тянет назад",
+ "Вертекс":"точка судьбоносных встреч: люди и события, которые приходят будто извне и меняют курс",
+ "Восточная точка":"самый первый, телесный отклик на мир — как человек реагирует ещё до того, как успел подумать"
+};
+function pointsOf(r){
+  var t=r.t,c=r.cusps,g=r.geo,det=r.natal.det,sun=det["Солнце"].lon,moon=det["Луна"].lon,asc=c[1];
+  var day=[7,8,9,10,11,12].indexOf(houseOf(sun,c))>=0;
+  var fort=norm(day?asc+moon-sun:asc+sun-moon),spir=norm(day?asc+sun-moon:asc+moon-sun),fortAlt=norm(asc+moon-sun);
+  var os=oscMoon(t),out=[];
+  out.push({k:"Парс Фортуны",lon:fort,tech:(day?'дневная':'ночная')+' формула'+(day?' ASC+Луна−Солнце':' ASC+Солнце−Луна')+(day?'':'; по «всегда дневной» формуле — '+fmt(fortAlt))});
+  out.push({k:"Парс Духа",lon:spir,tech:day?'ASC+Солнце−Луна':'ASC+Луна−Солнце'});
+  out.push({k:"Лилит",lon:r.pN["Лилит"],tech:'средняя Чёрная Луна; истинная (оскулирующая) — '+fmt(os.lilith)});
+  out.push({k:"Восходящий узел",lon:r.pN["Восх. узел"],tech:'средний узел; истинный — '+fmt(os.node)});
+  out.push({k:"Нисходящий узел",lon:norm(r.pN["Восх. узел"]+180),tech:'средний; истинный — '+fmt(norm(os.node+180))});
+  if(g){var e=obl(t),R=norm(A.SiderealTime(t)*15+g.lon),vx=ascFrom(norm(R+180),e,g.lat>=0?90-g.lat:-90-g.lat);
+    out.push({k:"Вертекс",lon:vx,tech:'антивертекс — '+fmt(norm(vx+180))});
+    out.push({k:"Восточная точка",lon:ascFrom(R,e,0),tech:'экваториальный асцендент'});}
+  out.forEach(function(p){p.house=houseOf(p.lon,c);var orb=(p.k==="Лилит"||p.k.indexOf('узел')>=0)?3:2;p.hits=[];
+    Object.keys(BASE).forEach(function(q){var d=sep(p.lon,det[q].lon);if(d<=orb)p.hits.push({q:q,k:"Соединение",o:d});else if(Math.abs(d-180)<=orb)p.hits.push({q:q,k:"Оппозиция",o:Math.abs(d-180)})});
+    [["ASC",c[1]],["MC",c[10]]].forEach(function(x){if(p.k==="Вертекс"||p.k==="Восточная точка"||p.k==="Парс Фортуны"&&x[0]==="ASC")return;var d=sep(p.lon,x[1]);if(d<=2)p.hits.push({q:x[0],k:"Соединение",o:d})})});
+  return out;
+}
+function pointsHTML(r){
+  if(!r.geo)return'';var P=pointsOf(r);
+  var h='<h2>Расчётные точки</h2><p class="small">Это не планеты, а точки, вычисленные из положения Солнца, Луны и горизонта. Они не меняют проценты векторов, но добавляют к портрету тонкие слои: где удача, где искушение, куда растёт жизнь. Все, кроме узлов и Лилит, очень чувствительны к точному времени рождения.'+(r._isReloc?' Сейчас показаны для места проживания.':'')+'</p><div class="card">';
+  P.forEach(function(p){var s=Math.floor(p.lon/30);
+    var txt='<b>'+p.k+'</b> — '+PT_LIT[p.k]+'. У вас — <i>'+SIGN_WORD[s]+'</i>: '+SIGN_LIT[s]+'; '+HOUSE_LIT[p.house]+'.';
+    p.hits.sort(function(a,b){return a.o-b.o}).forEach(function(x){var nm=PSY[x.q]||x.q;
+      txt+=x.k==="Соединение"?' Рядом стоит '+nm+' ('+precWord(x.o)+'): эта сила окрашивает всю точку.':' Напротив — '+(PSY_SHORT[x.q]||x.q)+' ('+precWord(x.o)+'): то, что в этой точке, человек часто встречает через эту силу — или в других людях.'});
+    h+='<div class="asp"><p>'+txt+tech(fmt(p.lon)+', '+p.house+' дом; '+p.tech+(p.hits.length?'; '+p.hits.map(function(x){return ASYM[x.k]+' '+x.q+' '+x.o.toFixed(1)+'°'}).join(', '):''))+'</p></div>'});
+  var dL=r.pD["Лилит"],dN=r.pD["Восх. узел"];
+  h+='<p class="small">В теле (карта за 88°): Лилит — '+SIGN_WORD[Math.floor(dL/30)]+tech(fmt(dL))+', восходящий узел — '+SIGN_WORD[Math.floor(dN/30)]+tech(fmt(dN))+'. Это бессознательная версия тех же тем.</p>';
+  r._points=P.map(function(p){return p.k+' '+fmt(p.lon)+' ('+p.house+' дом)'+(p.hits.length?' рядом: '+p.hits.map(function(x){return x.k+' '+x.q+' '+x.o.toFixed(1)+'°'}).join(', '):'')}).join('; ');
+  return h+'</div>';
+}
+// ---- расширенный набор фигур ----
+function configsExt(det,cusps){
+  var pos={};Object.keys(BASE).forEach(function(p){pos[p]=det[p].lon});
+  var asp=aspects(pos),H={};asp.forEach(function(x){var k=[x[0],x[1]].sort().join("|");(H[k]=H[k]||[]).push(x[2])});
+  function has(a,b,n){return(H[[a,b].sort().join("|")]||[]).indexOf(n)>=0}
+  var pl=Object.keys(pos),res=configs(pos,asp).slice();
+  var opp=[];for(var i=0;i<pl.length;i++)for(var j=i+1;j<pl.length;j++)if(has(pl[i],pl[j],"Оппозиция"))opp.push([pl[i],pl[j]]);
+  var crosses=[],envs=[];
+  for(i=0;i<opp.length;i++)for(j=i+1;j<opp.length;j++){var a=opp[i][0],c=opp[i][1],b=opp[j][0],d=opp[j][1];if(a===b||a===d||c===b||c===d)continue;
+    if(has(a,b,"Квадрат")&&has(b,c,"Квадрат")&&has(c,d,"Квадрат")&&has(d,a,"Квадрат")){res.push(["Большой крест",null,[a,b,c,d]]);crosses.push([a,b,c,d])}
+    var hm=function(x,y){return has(x,y,"Тригон")||has(x,y,"Секстиль")};
+    if(hm(a,b)&&hm(b,c)&&hm(c,d)&&hm(d,a)){res.push(["Конверт",null,[a,b,c,d]]);envs.push([a,b,c,d])}}
+  var big=res.filter(function(x){return x[0]==="Парус"}).map(function(x){return x[2].concat([x[1]])}).concat(envs);
+  function inside(arr){return big.some(function(B){return arr.every(function(p){return B.indexOf(p)>=0})})}
+  for(i=0;i<pl.length;i++)for(j=0;j<pl.length;j++)for(var k=j+1;k<pl.length;k++){var x=pl[i],y=pl[j],z=pl[k];if(x===y||x===z)continue;
+    if(has(x,y,"Секстиль")&&has(x,z,"Секстиль")&&has(y,z,"Тригон")&&!inside([x,y,z]))res.push(["Малый тригон",x,[y,z]]);
+    if(has(y,z,"Оппозиция")&&((has(x,y,"Тригон")&&has(x,z,"Секстиль"))||(has(x,z,"Тригон")&&has(x,y,"Секстиль")))&&!inside([x,y,z]))res.push(["Ладья",x,[y,z]]);}
+  res.filter(function(c){return c[0]==="Перст судьбы"}).forEach(function(f){pl.forEach(function(q){if(has(q,f[1],"Оппозиция")&&has(q,f[2][0],"Секстиль")&&has(q,f[2][1],"Секстиль"))res.push(["Бумеранг",q,[f[1]].concat(f[2])])})});
+  res=res.filter(function(c){return!(c[0]==="Тау-квадрат"&&crosses.some(function(C){return C.indexOf(c[1])>=0&&c[2].every(function(p){return C.indexOf(p)>=0})}))});
+  var bySign={};pl.forEach(function(p){var s=Math.floor(pos[p]/30);(bySign[s]=bySign[s]||[]).push(p)});
+  var stel=[];for(var s in bySign)if(bySign[s].length>=3){res.push(["Стеллиум",null,bySign[s],'в '+SIGNS_P[s],+s]);stel.push(bySign[s].slice().sort().join())}
+  if(cusps){var byH={};pl.forEach(function(p){var hh=houseOf(pos[p],cusps);(byH[hh]=byH[hh]||[]).push(p)});
+    for(var hh in byH)if(byH[hh].length>=3&&stel.indexOf(byH[hh].slice().sort().join())<0)res.push(["Стеллиум",null,byH[hh],'в '+hh+' доме',null,+hh])}
+  var seen={};return res.filter(function(c){var key=c[0]+'|'+(c[1]||'')+'|'+c[2].slice().sort().join()+(c[3]||'');if(seen[key])return false;seen[key]=1;return true});
+}
+function litCf2(c){
+  var S=function(p){return PSY_SHORT[p]||p};
+  if(c[0]==='Большой крест')return'<b>Крест четырёх ветров.</b> '+c[2].map(function(p){return capital(S(p))}).join(', ')+' тянут на все четыре стороны сразу. Отсюда редкая устойчивость — как у креста, который не опрокинуть, — и постоянное напряжение: человек выносит то, что сломало бы других, но отдыхать ему приходится учиться.'+tech('большой крест: '+c[2].join(', '));
+  if(c[0]==='Конверт')return'<b>Запечатанное письмо.</b> Два внутренних противостояния — '+S(c[2][0])+' и '+S(c[2][2])+', '+S(c[2][1])+' и '+S(c[2][3])+' — перевязаны гармоничными нитями. Противоречия здесь сами находят практическое решение: талант превращать конфликт в дело.'+tech('конверт (мистический прямоугольник): '+c[2].join(', '));
+  if(c[0]==='Малый тригон')return'<b>Маленький дар.</b> '+capital(S(c[2][0]))+' и '+S(c[2][1])+' живут в согласии, а '+S(c[1])+' — точка, через которую это согласие выходит наружу. Талант, который раскрывается, когда человек опирается именно на '+S(c[1])+'.'+tech('малый тригон (бисекстиль), вершина '+c[1]+'; '+c[2].join(', '));
+  if(c[0]==='Ладья')return'<b>Лодка через пролив.</b> '+capital(S(c[2][0]))+' и '+S(c[2][1])+' стоят на разных берегах, а '+S(c[1])+' — лодка, на которой можно переправиться: через эту силу противоречие становится переходом, а не войной.'+tech('ладья: оппозиция '+c[2].join('–')+', разряженная тригоном и секстилем к '+c[1]);
+  if(c[0]==='Бумеранг')return'<b>Бумеранг.</b> К точке неизбежного роста добавлен ответ: '+S(c[1])+' стоит напротив вершины и возвращает её напряжение обратно в мир. Повороты судьбы здесь резкие, но они возвращаются — то, что человек бросает в жизнь, прилетает к нему преобразованным.'+tech('бумеранг (перст с ответной точкой '+c[1]+'); перст: '+c[2].join(', '));
+  if(c[0]==='Стеллиум'){var outer=c[2].filter(function(p){return OUTER.indexOf(p)>=0||p==="Сатурн"||p==="Юпитер"}).length===c[2].length;
+    return'<b>Созвездие '+c[3]+'.</b> '+c[2].map(function(p){return capital(S(p))}).join(', ')+' собраны в одном месте, и '+(c[4]!=null?'манера «'+SIGN_WORD[c[4]]+'» становится центром тяжести всей личности.':'эта сфера жизни становится центром тяжести: сюда уходит больше всего сил.')+(outer?' Все планеты здесь медленные — это печать поколения, общий фон, который человек разделяет со сверстниками.':'')+tech('стеллиум '+c[3]+': '+c[2].join(', '));}
+  return litCf(c);
+}
+
+// ===== Генные ключи: Золотой путь, встроенный в лестницы векторов =====
+var GK_WHEEL=[41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24,2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60];
+var GK_START=302; // 41-й ключ начинается на 2° Водолея
+function gkOf(lon){var o=norm(lon-GK_START),i=Math.floor(o/5.625),f=(o-i*5.625)/5.625;return{key:GK_WHEEL[i],line:Math.min(6,Math.floor(f*6)+1)}}
+// [тень, дар, сидхи]
+var GK=[null,
+["Энтропия","Свежесть","Красота"],["Смещение","Ориентация","Единство"],["Хаос","Новаторство","Невинность"],["Нетерпимость","Понимание","Прощение"],
+["Нетерпение","Терпение","Безвременность"],["Конфликт","Дипломатия","Мир"],["Разделение","Водительство","Добродетель"],["Посредственность","Стиль","Изысканность"],
+["Инертность","Решимость","Непобедимость"],["Самопоглощённость","Естественность","Бытие"],["Неясность","Идеализм","Свет"],["Тщеславие","Различение","Чистота"],
+["Разлад","Проницательность","Эмпатия"],["Компромисс","Компетентность","Щедрость изобилия"],["Тусклость","Магнетизм","Цветение"],["Безразличие","Разносторонность","Мастерство"],
+["Мнение","Дальновидность","Всеведение"],["Осуждение","Цельность","Совершенство"],["Созависимость","Чуткость","Жертвенность"],["Поверхностность","Уверенность в себе","Присутствие"],
+["Контроль","Авторитет","Доблесть"],["Бесчестие","Любезность","Благодать"],["Сложность","Простота","Квинтэссенция"],["Зависимость","Изобретательность","Безмолвие"],
+["Скованность","Принятие","Вселенская любовь"],["Гордыня","Искусность","Невидимость"],["Эгоизм","Альтруизм","Самоотверженность"],["Бесцельность","Цельность действия","Бессмертие"],
+["Половинчатость","Преданность делу","Самоотдача"],["Желание","Лёгкость","Восторг"],["Высокомерие","Лидерство","Смирение"],["Неудача","Сохранение","Благоговение"],
+["Забвение","Осознанность","Откровение"],["Принуждение","Сила","Величие"],["Голод","Приключение","Безграничность"],["Турбулентность","Человечность","Сострадание"],
+["Слабость","Равенство","Нежность"],["Борьба","Упорство","Честь"],["Провокация","Динамизм","Освобождение"],["Истощение","Решительность","Божественная воля"],
+["Фантазия","Предвкушение","Излучение"],["Ожидание","Непривязанность","Празднование"],["Глухота","Озарение","Прозрение"],["Вмешательство","Командность","Синархия"],
+["Доминирование","Синергия","Причастие"],["Серьёзность","Радость","Экстаз"],["Угнетение","Преображение","Преображение духа"],["Неадекватность","Находчивость","Мудрость"],
+["Реакция","Революция","Перерождение"],["Порча","Равновесие","Гармония"],["Возбуждение","Инициатива","Пробуждение"],["Стресс","Сдержанность","Неподвижность"],
+["Незрелость","Расширение","Сверхизобилие"],["Жадность","Устремлённость","Вознесение"],["Виктимность","Свобода","Свобода"],["Рассеянность","Обогащение","Опьянение"],
+["Беспокойство","Интуиция","Ясность"],["Неудовлетворённость","Жизненная сила","Блаженство"],["Нечестность","Близость","Прозрачность"],["Ограничение","Реализм","Справедливость"],
+["Психоз","Вдохновение","Святость"],["Интеллект","Точность","Безупречность"],["Сомнение","Исследование","Истина"],["Смятение","Воображение","Просветление"]];
+var GK_LINE=["","основа: дар раскрывается через глубокое изучение и опору на знание","естественность: дар проявляется сам, когда человека «зовут» из уединения","проба и ошибка: дар закаляется опытом, каждая неудача — часть метода","связи: дар раскрывается через дружбу и сеть близких людей","проекция: от человека ждут решений, и дар звучит, когда он приходит на помощь","пример: дар созревает с годами и становится образцом для других"];
+// сфера: [название, последовательность, слой, планета ('Земля' = Солнце+180), смысл]
+var GK_SPH=[
+["Дело жизни","Активация","N","Солнце","главное, чем человек приходит в мир"],
+["Эволюция","Активация","N","Земля","главный вызов роста — через него приходит зрелость"],
+["Сияние","Активация","D","Солнце","что делает тело здоровым и светящимся"],
+["Цель","Активация","D","Земля","опора и заземление — что даёт глубокое удовлетворение"],
+["Притяжение","Венера","D","Луна","кого и что человек притягивает в близость"],
+["Интеллект (IQ)","Венера","N","Венера","как устроен ум в отношениях и где его исходная рана"],
+["Чувства (EQ)","Венера","N","Марс","эмоциональный интеллект — как человек чувствует"],
+["Дух (SQ)","Венера","D","Венера","способность любить без условий"],
+["Ядро и призвание","Венера · Жемчужина","D","Марс","глубинная рана и одновременно ключ к призванию"],
+["Культура","Жемчужина","D","Юпитер","среда, в которой дар процветает"],
+["Жемчужина","Жемчужина","N","Юпитер","как дар превращается в изобилие для многих"]];
+function gkSpheres(r){
+  return GK_SPH.map(function(s){var lay=s[2]==='N'?r.natal:r.design,src=s[3]==='Земля'?'Солнце':s[3],lon=lay.det[src].lon;if(s[3]==='Земля')lon=norm(lon+180);
+    var g=gkOf(lon),mix={},sv=SIGN_V[Math.floor(lon/30)],best=null;for(var v in sv)mix[v]=.6*sv[v];
+    if(s[2]==='N'&&r.cusps){var hv=SIGN_V[houseOf(lon,r.cusps)-1];for(v in hv)mix[v]=(mix[v]||0)+.4*hv[v]}
+    var mx=0;for(v in mix)mx=Math.max(mx,mix[v]);var prof=(s[2]==='N'?r.idx.natal:r.idx.design); // природа планеты одинакова у всех — вектор ключа задают знак и дом; при равенстве — более сильный вектор человека
+    for(v in mix)if(mix[v]>=mx-.02&&(!best||prof[v]>prof[best]))best=v;
+    return{name:s[0],seq:s[1],layer:s[2],planet:s[3],what:s[4],lon:lon,key:g.key,line:g.line,sgs:GK[g.key],vec:best}});
+}
+function gkTag(x){return x.key+'.'+x.line}
+function gkInLadder(r,v){
+  var S=(r._gk||[]).filter(function(x){return x.vec===v});if(!S.length)return'';
+  return'<div class="gkl">'+S.map(function(x){return'<div><span class="gkn">'+x.name+' · ключ '+gkTag(x)+'</span> <span class="bad">'+x.sgs[0]+'</span> → <span>'+x.sgs[1]+'</span> → <span class="good">'+x.sgs[2]+'</span></div>'}).join('')+'</div>';
+}
+function gkHTML(r,pid){
+  var S=gkSpheres(r);r._gk=S;
+  var h='<h2>Генные ключи: Золотой путь</h2><p class="small">Ключи вычисляются из тех же двух карт: рождения и «тела» за 88°. Каждая сфера стоит на своей планете, а эта планета в модели питает определённый вектор — поэтому каждый ключ вплетён в лестницу своего вектора (раздел «Уровни»). Тень, дар и сидхи — три частоты одного и того же качества, а не три разных качества. Названия ключей — по системе Ричарда Радда, толкования и связь с векторами — авторские.</p>';
+  h+='<div class="snd" style="margin-bottom:12px"><div class="sbtns"><button type="button" class="play" data-act="gk" data-pid="'+pid+'">▶ Золотой путь мелодией</button><button type="button" class="play ghost" data-act="stop">■ Стоп</button></div></div>';
+  var seqs=["Активация","Венера","Жемчужина"];
+  h+='<div class="tw"><table class="gkt"><tr><th>Сфера</th><th>Ключ</th><th>Тень → Дар → Сидхи</th><th>Вектор</th><th>Нота</th></tr>';
+  seqs.forEach(function(q){h+='<tr><th colspan="5" class="gkseq">'+(q==="Активация"?'Активация — путь призвания':q==="Венера"?'Последовательность Венеры — путь сердца и отношений':'Жемчужина — путь процветания')+'</th></tr>';
+    S.filter(function(x){return x.seq.split(' · ')[0]===q||(q==="Жемчужина"&&x.seq.indexOf('Жемчужина')>=0&&x.seq.indexOf('Венера')<0)}).forEach(function(x){
+      h+='<tr><td><b>'+x.name+'</b><br><span class="small">'+x.what+'</span></td><td class="mono">'+gkTag(x)+'<br><span class="small">'+(x.layer==='N'?'голова':'тело')+', '+(x.planet==='Земля'?'Земля':x.planet)+'</span></td><td><span class="bad">'+x.sgs[0]+'</span> → '+x.sgs[1]+' → <span class="good">'+x.sgs[2]+'</span><br><span class="small">Линия '+x.line+' — '+GK_LINE[x.line]+'</span></td><td style="color:'+VCOL[x.vec]+'">'+x.vec+'</td><td class="mono small">'+noteName(x.lon)+'</td></tr>'})});
+  h+='</table></div>';
+  var lw=S[0];h+='<div class="note"><b>Дело жизни — '+lw.sgs[1].toLowerCase()+'.</b> Тень этого ключа — '+lw.sgs[0].toLowerCase()+': так дар звучит, когда человек живёт в реакции и страхе. Дар — '+lw.sgs[1].toLowerCase()+': та же энергия, принятая и прожитая. Сидхи — '+lw.sgs[2].toLowerCase()+': она же, когда в ней не остаётся «я». Ключ стоит на Солнце '+(lw.layer==='N'?'карты рождения':'')+' и питает в первую очередь '+lw.vec.toLowerCase()+' вектор: здесь тень, дар и сидхи — это ступени его лестницы.'+tech(fmt(lw.lon)+' — ключ '+gkTag(lw))+'</div>';
+  return h;
+}
+function playGK(r){var c=ctx(),t=c.currentTime+.05;(r._gk||gkSpheres(r)).forEach(function(x,i){voice(x.planet==='Земля'?'Солнце':x.planet,x.lon,t+i*.55,1.4,.12,0)})}
+function gkGroup(V){
+  var map={};V.forEach(function(p){(p.r._gk||[]).forEach(function(x){(map[x.key]=map[x.key]||[]).push({n:p.name,s:x.name,l:x.line})})});
+  var out=[];for(var k in map){var who={};map[k].forEach(function(x){who[x.n]=1});if(Object.keys(who).length>1)out.push('<p><b>'+k+'-й ключ</b> ('+GK[k][0].toLowerCase()+' → '+GK[k][1].toLowerCase()+' → '+GK[k][2].toLowerCase()+'): '+map[k].map(function(x){return x.n+' — '+x.s.toLowerCase()+', линия '+x.l}).join('; ')+'. Одна и та же частота звучит у вас в разных сферах жизни: то, что один проживает как '+map[k][0].s.toLowerCase()+', другой встречает как '+map[k][1].s.toLowerCase()+'.</p>')}
+  return'<h2>Общие генные ключи</h2><div class="card">'+(out.length?out.join(''):'<p class="small">Совпадающих ключей в Золотом пути нет — каждый приносит свои частоты.</p>')+'</div>';
+}
+
+// ===== Таро: Золотая Заря (астрология → карты) + слой по дате (Грир, Матрица судьбы) =====
+// нумерация Тота/Марселя: VIII — Справедливость, XI — Сила
+var ARC=["Шут","Маг","Верховная Жрица","Императрица","Император","Иерофант","Влюблённые","Колесница","Справедливость","Отшельник","Колесо Фортуны","Сила","Повешенный","Смерть","Умеренность","Дьявол","Башня","Звезда","Луна","Солнце","Суд","Мир","Шут"];
+var ROMAN=["0","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX","XXI","XXII"];
+var HEB=["Алеф","Бет","Гимель","Далет","Хе","Вав","Заин","Хет","Ламед","Йод","Каф","Тет","Мем","Нун","Самех","Айин","Пе","Цади","Коф","Реш","Шин","Тав","Алеф"];
+var ARC_ASTRO=["Воздух (совр. Уран)","Меркурий","Луна","Венера","Овен","Телец","Близнецы","Рак","Весы","Дева","Юпитер","Лев","Вода (совр. Нептун)","Скорпион","Стрелец","Козерог","Марс","Водолей","Рыбы","Солнце","Огонь (совр. Плутон)","Сатурн","Воздух (совр. Уран)"];
+var ARC_LS=[["свобода начинать с нуля и доверять жизни","безответственность и бегство"],["воля, превращающая замысел в дело","манипуляция, фокусы вместо дела"],["тихое знание, интуиция, умение ждать","замкнутость и тайны"],["плодородие, красота, забота, изобилие","избалованность или удушающая опека"],["порядок, ответственность, опора для других","диктат и жёсткость"],["учитель, смысл, связь с традицией","догма и морализаторство"],["выбор сердцем, союз противоположностей","раздвоенность, вечная нерешительность"],["победа воли, движение вперёд","гонка и контроль ради контроля"],["равновесие, честность, чувство меры","холодный расчёт, осуждение"],["мудрость уединения, свет для идущих следом","изоляция, уход от жизни"],["удача, умение поймать поворот","фатализм, жизнь от случая к случаю"],["укрощённая страсть, мягкая мощь","подавленные или неуправляемые инстинкты"],["новый взгляд, жертва ради смысла","роль жертвы, застревание"],["обновление через завершение","страх перемен или разрушение ради разрушения"],["алхимия: соединение несоединимого","серость, вечный компромисс"],["сила желания, материальная мощь, смех над запретами","зависимости, соблазн, власть над другими"],["освобождение, крушение ложного","катастрофичность, разрушительность"],["надежда, вдохновение, своё место во вселенной","пустые мечты, оторванность"],["глубинная интуиция, творчество из бессознательного","иллюзии, страхи, самообман"],["радость, ясность, творческое сияние","эгоцентризм, выгорание"],["пробуждение, зов, перерождение","самоосуждение, приговор себе и другим"],["целостность, завершённость, мир как дом","незавершённость, хождение по кругу"],["свобода начинать с нуля и доверять жизни","безответственность и бегство"]];
+var PL_ARC={"Солнце":19,"Луна":2,"Меркурий":1,"Венера":3,"Марс":16,"Юпитер":10,"Сатурн":21,"Уран":0,"Нептун":12,"Плутон":20};
+var SG_ARC=[4,5,6,7,11,9,8,13,14,15,17,18];
+var SUIT=["Жезлов","Дисков","Мечей","Кубков"]; // по стихии знака: огонь, земля, воздух, вода
+var DEC_TITLE={"2 Жезлов":"Владычество","3 Жезлов":"Добродетель","4 Жезлов":"Завершение","5 Дисков":"Тревога","6 Дисков":"Успех","7 Дисков":"Неудача","8 Мечей":"Вмешательство","9 Мечей":"Жестокость","10 Мечей":"Крах","2 Кубков":"Любовь","3 Кубков":"Изобилие","4 Кубков":"Роскошь","5 Жезлов":"Борьба","6 Жезлов":"Победа","7 Жезлов":"Доблесть","8 Дисков":"Благоразумие","9 Дисков":"Приобретение","10 Дисков":"Богатство","2 Мечей":"Мир","3 Мечей":"Печаль","4 Мечей":"Перемирие","5 Кубков":"Разочарование","6 Кубков":"Удовольствие","7 Кубков":"Разврат","8 Жезлов":"Стремительность","9 Жезлов":"Сила","10 Жезлов":"Гнёт","2 Дисков":"Перемена","3 Дисков":"Труды","4 Дисков":"Власть","5 Мечей":"Поражение","6 Мечей":"Наука","7 Мечей":"Тщетность","8 Кубков":"Праздность","9 Кубков":"Счастье","10 Кубков":"Пресыщение"};
+var CHALD=["Марс","Солнце","Венера","Меркурий","Луна","Сатурн","Юпитер"];
+function decanOf(lon){var s=Math.floor(lon/30),d=Math.floor((lon%30)/10),n=(s%3)*3+d+2,suit=SUIT[[0,1,2,3][s%4]],card=n+' '+suit;return{sign:s,dec:d+1,ruler:CHALD[(s*3+d)%7],card:card,title:DEC_TITLE[card]}}
+function arcLabel(n){return ROMAN[n]+' '+ARC[n]}
+function arcVec(n){ // вектор аркана — через его планету или знак
+  var A=ARC_ASTRO[n],m=null;
+  for(var p in PL_ARC)if(PL_ARC[p]===n)m=PLANET_V[p];
+  var si=SG_ARC.indexOf(n);if(si>=0)m=SIGN_V[si];
+  if(!m)return null;var b=null;for(var v in m)if(!b||m[v]>m[b])b=v;return b}
+function reduce22(n){while(n>22)n=String(n).split('').reduce(function(s,c){return s+ +c},0);return n}
+function dsum(n){return String(n).split('').reduce(function(s,c){return s+ +c},0)}
+function matrixOf(d,m,y){
+  var A=reduce22(d),B=m,C=reduce22(dsum(y)),D=reduce22(A+B+C),E=reduce22(A+B+C+D);
+  var F=reduce22(A+B),G=reduce22(B+C),H=reduce22(C+D),I=reduce22(D+A);
+  var sky=reduce22(B+D),earth=reduce22(A+C),pers=reduce22(sky+earth),male=reduce22(F+H),fem=reduce22(G+I),soc=reduce22(male+fem),spir=reduce22(pers+soc);
+  return{A:A,B:B,C:C,D:D,E:E,F:F,G:G,H:H,I:I,sky:sky,earth:earth,pers:pers,male:male,fem:fem,soc:soc,spir:spir};
+}
+var MX_POS=[["A","Портрет личности — как человек проявляется"],["B","Таланты, данные свыше"],["C","Материальная задача"],["D","Главный урок — то, что нужно прожить и проработать"],["E","Центр, зона комфорта — где человек дома"],["F","Род отца (верх)"],["G","Род матери (верх)"],["H","Род отца (низ)"],["I","Род матери (низ)"],["pers","Личное предназначение (примерно до 40 лет)"],["soc","Социальное предназначение (примерно 40–60)"],["spir","Духовное предназначение (после 60)"]];
+function greerOf(d,m,y){var s=d+m+y;while(s>21)s=dsum(s);var a=s,b=s>9?dsum(s):s;return{pers:a,soul:b}}
+function tarotData(r){
+  var y=r.bd.y,m=r.bd.mo,d=r.bd.d;
+  var rows=Object.keys(BASE).map(function(p){var lon=r.natal.det[p].lon,dc=decanOf(lon);return{p:p,lon:lon,pa:PL_ARC[p],sa:SG_ARC[Math.floor(lon/30)],dc:dc}});
+  var core=[["Солнце",r.natal.det["Солнце"].lon],["Асцендент",r.cusps[1]],["Середина неба",r.cusps[10]]].map(function(x){return{name:x[0],lon:x[1],sa:SG_ARC[Math.floor(x[1]/30)],dc:decanOf(x[1])}});
+  var mx=matrixOf(d,m,y),gr=greerOf(d,m,y);
+  // синхронизация: арканы карты против арканов даты
+  var chart={};function add(n,why){n=n===22?0:n;(chart[n]=chart[n]||[]).push(why)}
+  rows.forEach(function(x){if(PERS.indexOf(x.p)>=0||x.p==="Юпитер"||x.p==="Сатурн"){add(x.pa,x.p+' (аркан планеты)');add(x.sa,x.p+' в '+SIGNS_P[Math.floor(x.lon/30)])}});
+  core.slice(1).forEach(function(x){add(x.sa,x.name+' в '+SIGNS_P[Math.floor(x.lon/30)])});
+  var date=[];MX_POS.forEach(function(q){date.push([mx[q[0]],'матрица: '+q[1].split(' — ')[0].toLowerCase()])});date.push([gr.pers,'карта личности по Грир']);if(gr.soul!==gr.pers)date.push([gr.soul,'карта души по Грир']);
+  var sync={};date.forEach(function(x){var n=x[0]===22?0:x[0];if(chart[n])(sync[n]=sync[n]||{date:[],chart:chart[n]}).date.push(x[1])});
+  return{rows:rows,core:core,mx:mx,gr:gr,sync:sync,ymd:[d,m,y]};
+}
+function arcSpan(n){return'<b>'+arcLabel(n)+'</b>'}
+function matrixSVG(mx){
+  var P={A:[40,150],B:[150,40],C:[260,150],D:[150,260],E:[150,150],F:[72,72],G:[228,72],H:[228,228],I:[72,228]};
+  var s='<svg viewBox="0 0 300 300" width="260" height="260" role="img" aria-label="Матрица судьбы"><g fill="none" stroke="currentColor" stroke-opacity=".35"><polygon points="40,150 150,40 260,150 150,260"/><rect x="72" y="72" width="156" height="156"/><line x1="40" y1="150" x2="260" y2="150"/><line x1="150" y1="40" x2="150" y2="260"/></g>';
+  for(var k in P){var c=P[k];s+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="'+(k==='E'?20:16)+'" fill="var(--paper)" stroke="currentColor" stroke-opacity=".6"/><text x="'+c[0]+'" y="'+(c[1]+5)+'" text-anchor="middle" font-size="'+(k==='E'?15:13)+'" font-weight="600" fill="currentColor">'+mx[k]+'</text>'}
+  return s+'</svg>';
+}
+function tarotHTML(r){
+  var T=tarotData(r);r._tarot=T;
+  var h='<h2>Таро</h2><p class="small">Две независимые дороги к одним и тем же 22 арканам. Первая — через небо: по таблице Золотой Зари у каждой планеты и каждого знака есть свой старший аркан, а каждые 10° зодиака — своя малая карта (декан). Вторая — через число даты рождения: Матрица судьбы (метод Н. Ладини) и карты рождения (метод М. Грир). Там, где обе дороги приводят к одному аркану, — сильнейшие темы. Нумерация Тота и Марселя: VIII — Справедливость, XI — Сила.</p>';
+  // синхронизация
+  var ks=Object.keys(T.sync);
+  h+='<div class="card"><h3 style="margin-top:0">Где небо и число совпадают</h3>'+(ks.length?ks.map(function(n){var x=T.sync[n],ls=ARC_LS[n];return'<div class="asp"><p>'+arcSpan(+n)+' — '+ls[0]+'. Этот аркан приходит дважды: по дате ('+x.date.join(', ')+') и по небу ('+x.chart.join(', ')+'). Тема звучит с двух сторон — её трудно не прожить. Тень: '+ls[1]+'.'+tech(HEB[n]+' · '+ARC_ASTRO[n])+'</p></div>'}).join(''):'<p class="small">Арканы даты и арканы карты не пересекаются: число и небо говорят о разном и дополняют друг друга.</p>')+'</div>';
+  // ядро
+  h+='<div class="card"><h3 style="margin-top:0">Карты ядра</h3>'+T.core.map(function(x){return'<p><b>'+x.name+'</b> в '+SIGNS_P[Math.floor(x.lon/30)]+' — '+arcSpan(x.sa)+' ('+ARC_LS[x.sa][0]+'); декан — <b>'+x.dc.card+' «'+x.dc.title+'»</b>, управитель декана '+x.dc.ruler+'.'+tech(fmt(x.lon)+', '+x.dc.dec+'-й декан; '+HEB[x.sa])+'</p>'}).join('')+'</div>';
+  // матрица и Грир
+  var mx=T.mx;
+  h+='<div class="card"><h3 style="margin-top:0">Матрица судьбы и карты рождения</h3><div class="mxw"><div style="color:var(--ink)">'+matrixSVG(mx)+'</div><div>'+MX_POS.map(function(q){var n=mx[q[0]];return'<p class="mxp"><span class="small">'+q[1]+'</span><br>'+arcSpan(n)+' — '+ARC_LS[n][0]+'<span class="small"> · тень: '+ARC_LS[n][1]+'</span></p>'}).join('')+'</div></div>';
+  h+='<p><b>Карты рождения по Грир:</b> '+arcSpan(T.gr.pers)+(T.gr.soul!==T.gr.pers?' (личность) и '+arcSpan(T.gr.soul)+' (душа)':' — личность и душа совпадают, тема одна на всю жизнь')+'.'+tech(T.ymd[0]+' + '+T.ymd[1]+' + '+T.ymd[2]+', цифры складываются до 21')+'</p></div>';
+  // таблица планет
+  h+='<details class="more"><summary>Все планеты в таро</summary><div class="tw"><table class="pt"><tr><th>Планета</th><th>Аркан планеты</th><th>Аркан знака</th><th>Декан</th></tr>'+T.rows.map(function(x){return'<tr><td><b>'+x.p+'</b><br><span class="mono small">'+fmt(x.lon)+'</span></td><td>'+arcLabel(x.pa)+'<br><span class="small">'+HEB[x.pa]+'</span></td><td>'+arcLabel(x.sa)+'<br><span class="small">'+HEB[x.sa]+'</span></td><td>'+x.dc.card+' «'+x.dc.title+'»<br><span class="small">'+x.dc.dec+'-й декан, '+x.dc.ruler+'</span></td></tr>'}).join('')+'</table></div></details>';
+  return h;
+}
+function tarotInLadder(r,v){
+  var cs=carriers(r,v),top=cs&&cs[0];if(!top||!top.d||!PL_ARC.hasOwnProperty(top.p))return'';
+  var p=top.p,lon=top.d.lon,pa=PL_ARC[p],sa=SG_ARC[Math.floor(lon/30)],dc=decanOf(lon);
+  return'<div class="gkl"><span class="gkn">Таро · '+p+' в '+SIGNS_P[Math.floor(lon/30)]+'</span> — '+arcLabel(pa)+' в одеждах аркана '+arcLabel(sa)+', декан '+dc.card+' «'+dc.title+'». <span class="good">Свет: '+ARC_LS[pa][0]+'</span>; <span class="bad">тень: '+ARC_LS[pa][1]+'</span>.</div>';
+}
+function tarotGroup(V){
+  var out=[];var keys=[['E','центр матрицы'],['A','портрет'],['B','таланты'],['D','главный урок'],['pers','личное предназначение']];
+  for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){var a=V[i].r._tarot,b=V[j].r._tarot;if(!a||!b)continue;
+    keys.forEach(function(k){keys.forEach(function(q){if(a.mx[k[0]]===b.mx[q[0]])out.push('<p>'+arcSpan(a.mx[k[0]])+' — общий аркан: '+V[i].name+' — '+k[1]+', '+V[j].name+' — '+q[1]+'. '+capital(ARC_LS[a.mx[k[0]]][0])+' — тема, на которой вы встречаетесь.</p>')})});
+    var sa=SG_ARC[Math.floor(V[i].r.natal.det["Солнце"].lon/30)],sb=SG_ARC[Math.floor(V[j].r.natal.det["Солнце"].lon/30)];
+    out.push('<p><b>Солнца в таро:</b> '+V[i].name+' — '+arcLabel(sa)+', '+V[j].name+' — '+arcLabel(sb)+'. '+(sa===sb?'Один аркан на двоих — общая главная тема.':'Два разных аркана рядом: '+ARC_LS[sa][0]+' — и '+ARC_LS[sb][0]+'.')+'</p>')}
+  return'<h2>Таро между вами</h2><div class="card">'+out.join('')+'</div>';
+}
+
+// ===== Синтез-резюме через Claude (capability sample) =====
+var SAMPLE=null;(async function(){try{if(window.claude&&claude.use){SAMPLE=await claude.use("sample");if(SAMPLE)document.body.classList.add('has-ai')}}catch(e){}})();
+function dumpChart(r,name){
+  var L=[],y=r.t.date.getUTCFullYear();
+  L.push('ИМЯ: '+name+'; год рождения '+y+(r._isReloc?'; карта ПЕРЕСЧИТАНА НА МЕСТО ПРОЖИВАНИЯ (релокация)':'; карта места рождения'));
+  L.push('Сознательное (рождение) '+r.t.date.toISOString().slice(0,16)+' UTC; бессознательное (дизайн, Солнце на 88° раньше) '+r.dt.date.toISOString().slice(0,16)+' UTC');
+  L.push('ASC '+fmt(r.cusps[1])+'; MC '+fmt(r.cusps[10]));
+  ['голова','тело'].forEach(function(layer){var det=layer==='голова'?r.natal.det:r.design.det,rr=layer==='голова'?r.rN:r.rD;
+    L.push('ПЛАНЕТЫ ('+layer+'): '+Object.keys(det).map(function(p){var d=det[p];return p+' '+fmt(d.lon)+(d.house?' '+d.house+'д':'')+(rr[p]?' R':'')+(d.dig[0]?' ['+d.dig[1]+']':'')}).join('; '));
+    var pos=layer==='голова'?r.pN:r.pD;L.push('Узел '+fmt(pos["Восх. узел"])+'; Лилит '+fmt(pos["Лилит"]));
+    var asp=(layer==='голова'?r.natal.asp:r.design.asp).filter(function(a){return a[3]<=3&&!(OUTER.indexOf(a[0])>=0&&OUTER.indexOf(a[1])>=0)}).sort(function(a,b){return a[3]-b[3]});
+    L.push('АСПЕКТЫ ('+layer+', орб≤3°): '+asp.map(function(a){return a[0]+' '+a[2]+' '+a[1]+' '+a[3].toFixed(1)+'°'}).join('; '));
+    var cf=(layer==='голова'?r.natal.cf:r.design.cf),seen={};L.push('КОНФИГУРАЦИИ ('+layer+'): '+(cf.filter(function(c){var k=c[0]+c[1]+c[2].join();if(seen[k])return false;seen[k]=1;return true}).map(function(c){return c[0]+(c[1]?' вершина/фокус '+c[1]:'')+' ['+c[2].join(', ')+']'}).join('; ')||'нет'))});
+  L.push('ПРОФИЛЬ ВЕКТОРОВ (доля, голова/тело): '+VEC.map(function(v){return v+' '+r.idx.natal[v]+'/'+r.idx.design[v]+'%'}).join('; '));
+  L.push('УРОВНИ и ПОЧЕРК: '+VEC.map(function(v){var lv=levelFor(v,r._L),sg=r._sigs[v];return v+': потолок '+TX.LAD[v][lv.ceil-1].split(' — ')[0]+', риск '+TX.LAD[v][lv.risk-1].split(' — ')[0]+(sg?', архетип «'+sg.arche+'», код '+sg.code:'')}).join(' | '));
+  var d=r.natal.det;L.push('ЗВУК: тоника (Солнце) '+noteName(d["Солнце"].lon)+'; тон подачи (ASC) '+noteName(r.cusps[1])+'; Солнце–Луна '+IVL[Math.round(norm(d["Луна"].lon-d["Солнце"].lon)/30)%12][0]);
+  if(r._isReloc){var b=r._base;L.push('РЕЛОКАЦИЯ: ASC '+fmt(b.cusps[1])+' → '+fmt(r.cusps[1])+'; MC '+fmt(b.cusps[10])+' → '+fmt(r.cusps[10])+'; дома: '+Object.keys(BASE).filter(function(p){return b.natal.det[p].house!==d[p].house}).map(function(p){return p+' '+b.natal.det[p].house+'→'+d[p].house}).join(', '))}
+  if(r._points)L.push('РАСЧЁТНЫЕ ТОЧКИ: '+r._points);
+  if(r._cfN)L.push('ФИГУРЫ (голова): '+r._cfN.map(function(c){return c[0]+(c[1]?' вершина '+c[1]:'')+' ['+c[2].join(', ')+']'+(c[3]?' '+c[3]:'')}).join('; '));
+  if(r._cfD)L.push('ФИГУРЫ (тело): '+r._cfD.map(function(c){return c[0]+(c[1]?' вершина '+c[1]:'')+' ['+c[2].join(', ')+']'+(c[3]?' '+c[3]:'')}).join('; '));
+  if(r._gk)L.push('ГЕННЫЕ КЛЮЧИ (сфера: ключ.линия тень/дар/сидхи → вектор): '+r._gk.map(function(x){return x.name+': '+x.key+'.'+x.line+' '+x.sgs.join('/')+' → '+x.vec}).join('; '));
+  if(r._tarot){var T=r._tarot;L.push('ТАРО (Золотая Заря, нумерация VIII Справедливость / XI Сила): '+T.rows.map(function(x){return x.p+' — '+ARC[x.pa]+' в '+ARC[x.sa]+', декан '+x.dc.card}).join('; ')+'. МАТРИЦА СУДЬБЫ: A'+T.mx.A+' B'+T.mx.B+' C'+T.mx.C+' D'+T.mx.D+' центр '+T.mx.E+', личное '+T.mx.pers+', социальное '+T.mx.soc+', духовное '+T.mx.spir+'. ГРИР: '+T.gr.pers+'/'+T.gr.soul+'. СОВПАДЕНИЯ неба и числа: '+Object.keys(T.sync).map(function(n){return ARC[n]}).join(', '))}
+  if(r._bundle)L.push('СВЯЗКА ВЕКТОРОВ (тип по СВП): '+r._bundle);
+  return L.join('\n');
+}
+var AI_RULES='Ты — синтезирующий толкователь карт. Соединяешь три языка: психологическую и гуманистическую астрологию (в духе Дейна Радьяра и Лиз Грин — смысл, развитие, целостность, а не предсказания), системно-векторную психологию (8 векторов, уровни, голова и тело) и музыкальную метафору (каждая карта — аккорд: 30° = полутон, аспект = интервал, дом = такт). Пиши по-русски, живо и конкретно, без воды и без общих мест. Каждый вывод опирай на конкретные детали из данных: планета, знак, градус, дом, точный аспект с орбом, конфигурация, слой (голова = сознательное, тело = бессознательное, карта на 88° Солнца раньше). Подчёркивай уникальность сочетаний: что получается именно из соединения этих элементов, а не из каждого по отдельности. Учитывай поколенческие планеты (Уран, Нептун, Плутон в одном знаке у всех ровесников) как фон, а личным делай то, что связывает их с личными планетами и углами. Никаких оценок «лучше/хуже», «выше/ниже»: это разные цвета. Это интерпретация и художественный образ, не диагноз. Формат: заголовки второго уровня (##) и короткие абзацы, без таблиц.';
+function aiPerson(r,name){return AI_RULES+'\n\nЧеловек спрашивает: «Моё предназначение — кто я?». Ответь на это через всю карту — векторы, связку, генные ключи (особенно Дело жизни и Жемчужину), таро и матрицу, головы и тела. Разделы: ## Кто я — одной фразой; ## Моё предназначение (к чему ведут совпадения неба, числа и ключей); ## Как устроена психика (ключевые сцепки и что они дают вместе); ## Голова и тело (в чём расходятся и сходятся сознательное и бессознательное); ## Ведущие векторы и их почерк; ## Где сила и где уязвимость'+(r._isReloc?'; ## Что делает с ним место проживания':'')+'; ## Звучание (каким аккордом звучит эта карта и почему); ## Три практических совета. Объём — 500–700 слов.\n\nДАННЫЕ:\n'+dumpChart(r,name)}
+function aiGroup(V,names,contacts){return AI_RULES+'\n\nСделай общий вывод о группе из '+V.length+' человек: '+names.join(', ')+'. Разделы: ## Радуга (каждый одним образом-цветом и почему, из его конкретных сцепок); ## Один вектор — разные цвета (2–3 вектора, где различие почерков ярче всего, с деталями); ## Как ваши сцепки соединяются друг с другом (по межкарточным контактам и по тому, как конфигурация одного отвечает конфигурации другого); ## Разные поколения и градусы (что даёт разница годов и поколенческих планет); ## Аккорд вместе (как звучат ваши тоники и интервалы между ними); ## Как друг другу помогать. Объём — 700–900 слов. Не сравнивай «кто сильнее».\n\n'+V.map(function(x){return dumpChart(x.r,x.name)}).join('\n\n---\n\n')+'\n\nМЕЖКАРТОЧНЫЕ КОНТАКТЫ (орб≤1.5°):\n'+contacts}
+function mdLite(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/^## (.*)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')}
+var AI_CTL=null;
+async function runAI(btn,out,prompt){
+  if(!SAMPLE){out.innerHTML='<p class="small">Учёный Кот толкует, когда страница открыта на claude.ai.</p>';return}
+  if(AI_CTL)AI_CTL.abort();AI_CTL=new AbortController();var my=AI_CTL;
+  btn.disabled=true;out.innerHTML='<p class="small">Учёный Кот читает карту и думает… (обычно до минуты)</p>';
+  try{await SAMPLE(prompt,{modelTier:'complex',signal:my.signal,onText:function(u){out.innerHTML='<p>'+mdLite(u.text)+'</p>'}})}
+  catch(e){if(e.code==='cancelled'){}else if(e.code==='not_granted'||e.code==='sampling_disabled'){out.innerHTML='<p class="small">Учёному Коту не разрешён доступ к Claude на этой странице.</p>'}else if(e.code==='rate_limited'){out.innerHTML=(e.text?'<p>'+mdLite(e.text)+'</p>':'')+'<p class="small">Слишком много запросов. Попробуйте чуть позже.</p>'}else{out.innerHTML=(e.text?'<p>'+mdLite(e.text)+'</p>':'')+'<p class="small">Ответ прервался. Можно нажать ещё раз.</p>'}}
+  finally{btn.disabled=false}
+}
+
+</script>
+<script>
+var TX={"VECS": [{"n": "Звуковой", "s": "Человек смысла. Главный вопрос: зачем всё это, кто я, как устроен мир.", "life": "Любит тишину, ночь, наушники, одиночество. Уходит в себя посреди разговора, может не услышать, что его зовут. Громкие голоса и суета физически раздражают. Со стороны кажется отстранённым или холодным, хотя внутри идёт напряжённая работа.", "work": "Идеи, системы, тексты, программирование, музыка, наука, философия, психология. Может долго держать одну большую задачу. Мелкая разнородная суета выматывает.", "love": "Нужен собеседник по смыслу. Близость возникает через разговор о главном. Быт, ритуалы, «как прошёл день» даются с трудом.", "sign": "«Подожди, я думаю». Молчание как норма. Вопросы, на которые нет быстрых ответов. Любовь к словам и их точному смыслу.", "good": "Ясность, ощущение, что понял что-то важное. Сосредоточенность, спокойствие. Желание делиться смыслом с людьми.", "bad": "Апатия, «всё бессмысленно», сон днём, раздражение на людей, ощущение, что вокруг глупость. Уход в игры, сериалы, в себя. Одиночество, которое не радует.", "lv": ["Тяга к звуку, тишине, ночному небу, космосу", "Музыка, языки, поэзия, звучание слов", "Точные системы: программирование, физика, исследование", "Смысл для людей: философия, наука о человеке, духовный поиск ради многих"]}, {"n": "Зрительный", "s": "Человек чувств и красоты. Главное — видеть, чувствовать, быть в эмоциональной связи.", "life": "Замечает цвета, детали, красоту. Эмоции видны на лице. Плачет над фильмами, сопереживает. Может бояться темноты или одиночества.", "work": "Визуальное: дизайн, фото, видео, мода. Всё «через сердце»: медицина, психология, педагогика, помощь людям.", "love": "Эмоциональная близость, романтика, важно, чтобы чувства видели и разделяли.", "sign": "Яркие эмоции, богатая мимика, любовь к красивому, разговоры о чувствах.", "good": "Сопереживание, любовь, лёгкость, способность создавать красоту вокруг.", "bad": "Страхи, тревога, драматизация, «меня никто не любит», влияние на людей через жалость.", "lv": ["Красивые вещи, наряды, интерьер", "Природа, цветы, растения", "Любовь к живому: животным, людям рядом", "Сострадание к людям вообще: культура, искусство, гуманитарная помощь"]}, {"n": "Обонятельный", "s": "Человек чутья. Чует, кто есть кто, где опасность и где выгода. Действует незаметно.", "life": "Внешне сдержан, говорит мало и по делу. Сразу понимает, «свой» человек или нет. Не любит, когда его читают. Держится в тени.", "work": "Стратегия, переговоры за кулисами, безопасность, анализ рисков, финансы, политика — всё, где важно предвидеть.", "love": "Близких мало, но они «свои». Выбирает по чутью, держит дистанцию с остальными.", "sign": "Немногословность, точные короткие реплики, быстрые выводы о людях, которые потом подтверждаются.", "good": "Спокойная уверенность, точные решения, умение сохранить себя и своих в любой ситуации.", "bad": "Подозрительность, контроль, холодность, ожидание подвоха. Может молча «отрезать» человека.", "lv": ["Выживание через ресурсы: деньги, запасы", "Выживание своего круга, семьи", "Выживание дела или группы: стратегия, безопасность", "Выживание людей вообще: решения, которые сохраняют многих"]}, {"n": "Оральный", "s": "Человек слова. Говорит — и люди слушают, смеются, объединяются.", "life": "Думает вслух, много рассказывает, шутит, любит застолья. Молчать трудно. Важны вкус и еда.", "work": "Ведущий, журналист, интервьюер, продажи голосом, преподавание, PR.", "love": "Обаятелен, легко сближается через разговор. Нужен слушатель.", "sign": "Истории, юмор, «а вот был случай», лёгкость начать разговор с кем угодно.", "good": "Своим словом соединяет людей, разряжает напряжение, делает сложное понятным.", "bad": "Болтливость, приукрашивание, сплетни, не слышит других.", "lv": ["Говорит ради себя, болтовня", "Рассказчик в своём кругу", "Ведущий, лектор, голос группы", "Слово, которое сплачивает многих людей"]}, {"n": "Анальный", "s": "Человек качества и памяти. Делает основательно, помнит, ценит опыт и порядок.", "life": "Аккуратен, доводит до конца, не любит спешки. Помнит детали — и обиды. Ценит семью, традиции, «как правильно».", "work": "Эксперт, мастер, аналитик, учитель, редактор, контроль качества, метрология, история.", "love": "Верность, надёжность, нужна благодарность. Тяжело переносит измены и неожиданности.", "sign": "«Сделай нормально или не делай». Внимание к деталям. «Раньше было так».", "good": "Мастерство, гордость за качество, радость передать опыт.", "bad": "Обиды, застревание в прошлом, перфекционизм, откладывание, критичность к себе и другим.", "lv": ["Порядок в вещах", "Порядок в доме, забота о семье", "Мастерство в деле", "Передача знания людям: учитель, систематизатор, учёный"]}, {"n": "Кожный", "s": "Человек выгоды и правил. Быстро, эффективно, по закону, с экономией.", "life": "Быстрый, гибкий, считает время и деньги. Любит расписание, спорт, дисциплину. Экономит.", "work": "Менеджмент, бизнес, логистика, право, инженерия — всё, где нужна оптимизация.", "love": "Рациональность, уважение к границам. Может казаться сухим.", "sign": "«Сколько это стоит и сколько займёт времени». Чёткие договорённости. Нетерпение к медлительности.", "good": "Всё устроено, законно, выгодно и вовремя.", "bad": "Мелочность, суета, раздражение, контроль других, жадность или, наоборот, бессмысленные траты.", "lv": ["Экономия на вещах", "Порядок и бюджет в доме", "Организация дела или компании", "Законы и правила для общества: инженер, законодатель"]}, {"n": "Мышечный", "s": "Человек тела и ритма. Делает руками, вместе со всеми, без лишних вопросов.", "life": "Спокоен, телесен, любит физическую работу, сон, еду. «Как все». Надёжен.", "work": "Физический труд, ремесло руками, спорт, стройка, армия.", "love": "Простота, верность, без лишних слов.", "sign": "Спокойная сила, ровный ритм, «надо — сделаем».", "good": "Держит ритм, надёжная сила, на которую можно опереться.", "bad": "Вялость или вспышки силы. Плохо, когда заставляют много думать и искать смысл.", "lv": ["Работа телом ради себя", "Труд в своей семье, хозяйство", "Работа в команде, общее дело", "Сила, которая держит большое общее дело"]}, {"n": "Уретральный", "s": "Вожак. Ведёт вперёд, рискует, щедро отдаёт, отвечает за своих.", "life": "Щедр, рискован, не выносит ограничений. Решает быстро, берёт ответственность.", "work": "Основатель, лидер, первопроходец, спасатель.", "love": "Страсть, щедрость, сильная потребность в свободе.", "sign": "«За мной». Отдаёт больше, чем берёт. Не терпит, когда им командуют.", "good": "Ведёт людей в будущее и отдаёт им всё, что есть.", "bad": "Нетерпение, ярость на ограничения, риск ради риска.", "lv": ["Захват ради себя", "Вожак своего круга", "Лидер дела или движения", "Ведёт за собой многих в будущее"]}], "LAD": {"Звуковой": ["Безумие — психоз, депрессия, разрыв с реальностью", "Отшельник — уход внутрь, самодостаточность без выхода в мир", "Интеллектуал — синтез науки и мистики, исследователь", "Философ — концептуальное мышление, системы смыслов", "Пророк — выход за пределы эго, смысл для многих"], "Зрительный": ["Ужас — фобии, жертвенность без выхода", "Страх — тревога, истерики, влияние через жалость", "Эмпат — сочувствие, помощь, психологическое проникновение", "Художник — творчество как выражение красоты и смысла", "Любовь — безусловная любовь, альтруизм без жертвы"], "Обонятельный": ["Параноик — жизнь в ожидании нападения, разрушение систем", "Манипулятор — интриги, подковёрные игры, паразитирование", "Стратег — прогноз рисков, аудит, безопасность", "Кризис-менеджер — чтение скрытых мотивов, управление чужими страхами", "Кардинал — невидимое управление, предотвращение катастроф"], "Оральный": ["Клеветник — осознанная ложь через слово", "Сплетник — пустословие, искажение ради внимания", "Шоумен — перевод сложного и страшного в лёгкое и смешное", "Оратор — тонкое управление вниманием людей через речь", "Проповедник — слово, которое объединяет массы"], "Анальный": ["Жестокость — «так надо», давление через правила", "Критик — перфекционизм, застревание в обидах", "Специалист — профессионал, аналитик, систематик", "Мастер — безупречное мастерство в своей области", "Мудрец — хранитель опыта, наставник поколений"], "Кожный": ["Вор — обман, нарушение чужих границ", "Стяжатель — жажда наживы, мелочность", "Менеджер — организация, логистика, управление", "Лидер — результат через систему: предприниматель, чемпион", "Законодатель — создатель законов и норм для общества"], "Мышечный": ["Разрушитель — неконтролируемая агрессия, стадность", "Ведомый — без своего мнения, подчинение силе", "Труженик — надёжный исполнитель, коллективное «мы»", "Боец — работа телом на пределе, выносливость", "Атлант — удерживает большое, монументальная стабильность"], "Уретральный": ["Разрушитель — саморазрушение через адреналин, беспредел", "Эгоцентрик — жизнь за счёт других, непризнание никого", "Заводила — центр внимания, мотор компании, защита своих", "Революционер — ведёт за собой, первопроходец", "Вождь — масштабное лидерство, отдача ради будущего"]}};
+var VCOL={"Звуковой":"var(--v-zv)","Зрительный":"var(--v-zr)","Обонятельный":"var(--v-ob)","Оральный":"var(--v-or)","Анальный":"var(--v-an)","Кожный":"var(--v-ko)","Мышечный":"var(--v-my)","Уретральный":"var(--v-ur)"};
+var ROLE={"Солнце":"«я» и воля","Луна":"чувства и привычки","Меркурий":"мысль и речь","Венера":"любовь и вкус","Марс":"действие и злость","Юпитер":"рост и щедрость","Сатурн":"порядок и долг","Уран":"внезапность и новое","Нептун":"смысл и мечта","Плутон":"сила и контроль","ASC":"то, каким человека видят","MC":"призвание и роль в обществе"};
+var KIND={"Соединение":"слиты в одно: проявляются только вместе, усиливают и окрашивают друг друга.","Квадрат":"мешают друг другу. Это внутреннее трение, но и двигатель: именно оно заставляет действовать.","Оппозиция":"качели: то одно, то другое. Одну сторону человек часто встречает в других людях.","Тригон":"легко помогают друг другу. Это ресурс, но он включается задачей, а без неё просто лежит.","Секстиль":"могут помогать друг другу при небольшом усилии: возможность, которую надо взять.","Квиконс":"говорят на разных языках. Нужна постоянная подстройка — не конфликт, а хроническое «неудобно»."};
+var HOUSE=["","личность и подача","деньги и ресурсы","общение и ближний круг","дом, корни, семья","творчество, дети, удовольствие","работа и ежедневные дела","партнёрство и пара","кризисы, чужие ресурсы, глубина","мировоззрение, обучение, дальние страны","карьера и статус","друзья, сообщества, планы","уединение и скрытое"];
+var CITIES=[["— выбрать —"],["Москва",55.756,37.617,3,"Europe/Moscow"],["Санкт-Петербург",59.939,30.316,3,"Europe/Moscow"],["Казань",55.796,49.106,3,"Europe/Moscow"],["Нижний Новгород",56.327,44.006,3,"Europe/Moscow"],["Саранск",54.187,45.183,3,"Europe/Moscow"],["Ичалки (Мордовия)",54.683,45.267,3,"Europe/Moscow"],["Самара",53.195,50.101,4,"Europe/Samara"],["Ростов-на-Дону",47.222,39.718,3,"Europe/Moscow"],["Краснодар",45.035,38.975,3,"Europe/Moscow"],["Екатеринбург",56.838,60.597,5,"Asia/Yekaterinburg"],["Новосибирск",55.008,82.935,7,"Asia/Novosibirsk"],["Владивосток",43.115,131.886,10,"Asia/Vladivostok"],["Хабаровск",48.480,135.072,10,"Asia/Vladivostok"],["Комсомольск-на-Амуре",50.550,137.008,10,"Asia/Vladivostok"],["Амурск",50.234,136.893,10,"Asia/Vladivostok"],["Минск",53.904,27.562,3,"Europe/Minsk"],["Киев",50.450,30.523,2,"Europe/Kiev"],["Алматы",43.238,76.946,5,"Asia/Almaty"],["Астана",51.169,71.449,5,"Asia/Almaty"],["Тараз",42.900,71.367,5,"Asia/Almaty"],["Бишкек",42.875,74.570,6,"Asia/Bishkek"],["Ташкент",41.311,69.240,5,"Asia/Tashkent"],["Тбилиси",41.716,44.783,4,"Asia/Tbilisi"],["Ереван",40.179,44.499,4,"Asia/Yerevan"],["Баку",40.409,49.867,4,"Asia/Baku"],["Дуонг-Донг (Фукуок)",10.217,103.967,7,"Asia/Ho_Chi_Minh"],["Хошимин",10.776,106.700,7,"Asia/Ho_Chi_Minh"],["Бангкок",13.756,100.502,7,"Asia/Bangkok"],["Денпасар (Бали)",-8.650,115.216,8,"Asia/Makassar"],["Дубай",25.205,55.271,4,"Asia/Dubai"],["Тель-Авив",32.085,34.782,2,"Asia/Jerusalem"],["Стамбул",41.008,28.978,3,"Europe/Istanbul"],["Берлин",52.520,13.405,1,"Europe/Berlin"],["Лондон",51.507,-0.128,0,"Europe/London"],["Нью-Йорк",40.713,-74.006,-5,"America/New_York"]];
+var $=function(s){return document.querySelector(s)};
+function opts(sel){sel.innerHTML=CITIES.map(function(c,i){return'<option value="'+i+'">'+c[0]+'</option>'}).join('')}
+(function(){var ord=['второго','третьего'];$('#more-people').innerHTML=[2,3].map(function(n,i){return'<details class="sub" id="cmpbox'+n+'"><summary>Добавить '+ord[i]+' человека для сравнения (необязательно)</summary><div class="grid" style="margin-top:10px">'+
+ '<div class="f c2"><label for="name'+n+'">Имя</label><input id="name'+n+'" autocomplete="off"></div>'+
+ '<div class="f c2"><label for="sex'+n+'">Пол</label><select id="sex'+n+'"><option value="">не указан</option><option value="f">женский</option><option value="m">мужской</option></select></div>'+
+ '<div class="f c2"><label for="city'+n+'">Город рождения</label><select id="city'+n+'"></select></div>'+
+ '<div class="f c2"><label for="date'+n+'">Дата рождения</label><input id="date'+n+'" type="date"></div>'+
+ '<div class="f c2"><label for="time'+n+'">Время рождения</label><input id="time'+n+'" type="time"></div>'+
+ '<div class="f c2"><label for="tz'+n+'">Часовой пояс</label><select id="tz'+n+'"></select></div>'+
+ '<div class="c6 hint" id="tznote'+n+'" style="color:var(--accent)"></div>'+
+ '<div class="f c3"><label for="lat'+n+'">Широта</label><input id="lat'+n+'" inputmode="decimal"></div>'+
+ '<div class="f c3"><label for="lon'+n+'">Долгота</label><input id="lon'+n+'" inputmode="decimal"></div>'+
+ '<div class="f c2"><label for="rcity'+n+'">Где живёт сейчас</label><select id="rcity'+n+'"></select></div>'+
+ '<div class="f c2"><label for="rlat'+n+'">Широта</label><input id="rlat'+n+'" inputmode="decimal"></div>'+
+ '<div class="f c2"><label for="rlon'+n+'">Долгота</label><input id="rlon'+n+'" inputmode="decimal"></div>'+
+ '</div></details>'}).join('')})();
+opts($('#city'));opts($('#rcity'));[2,3].forEach(function(n){opts($('#city'+n));opts($('#rcity'+n))});
+var tzs=[];for(var z=-12;z<=14;z+=0.5)tzs.push(z);
+$('#tz').innerHTML=$('#tz2').innerHTML=$('#tz3').innerHTML=tzs.map(function(z){var s=(z>=0?'+':'−')+Math.floor(Math.abs(z))+(Math.abs(z)%1?':30':'');return'<option value="'+z+'">UTC'+s+'</option>'}).join('');
+function zoneOffset(zone,y,mo,d,h,mi){try{var guess=Date.UTC(y,mo-1,d,h,mi);for(var k=0;k<3;k++){var f=new Intl.DateTimeFormat('en-US',{timeZone:zone,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(guess)),o={};f.forEach(function(p){o[p.type]=+p.value});var loc=Date.UTC(o.year,o.month-1,o.day,o.hour%24,o.minute),off=(loc-guess)/36e5;guess=Date.UTC(y,mo-1,d,h,mi)-off*36e5}return Math.round(off*2)/2}catch(e){return null}}
+function autoTz(sfx){var c=CITIES[$('#city'+sfx).value],dv=$('#date'+sfx).value,tv=$('#time'+sfx).value||'12:00',note=$('#tznote'+sfx);if(!c||c.length<5||!dv){if(note)note.textContent='';return}
+  var p=dv.split('-').map(Number),q=tv.split(':').map(Number),off=zoneOffset(c[4],p[0],p[1],p[2],q[0],q[1]);if(off==null)return;$('#tz'+sfx).value=String(off);
+  if(note)note.textContent='Пояс подставлен по исторической базе на дату рождения: UTC'+(off>=0?'+':'−')+Math.abs(off)+(off!==c[3]?' (сегодня там UTC'+(c[3]>=0?'+':'−')+Math.abs(c[3])+' — в тот день было иначе)':'')+'. Можно поправить вручную.'}
+$('#city').onchange=function(){var c=CITIES[this.value];if(c.length>1){$('#lat').value=c[1];$('#lon').value=c[2];$('#tz').value=c[3];autoTz('')}};
+['','2','3'].forEach(function(s){['#date'+s,'#time'+s].forEach(function(id){var el=$(id);if(el)el.addEventListener('change',function(){autoTz(s)})})});
+[2,3].forEach(function(n){$('#city'+n).onchange=function(){var c=CITIES[this.value];if(c.length>1){$('#lat'+n).value=c[1];$('#lon'+n).value=c[2];$('#tz'+n).value=c[3];autoTz(String(n))}};$('#rcity'+n).onchange=function(){var c=CITIES[this.value];if(c.length>1){$('#rlat'+n).value=c[1];$('#rlon'+n).value=c[2]}}});
+
+$('#rcity').onchange=function(){var c=CITIES[this.value];if(c.length>1){$('#rlat').value=c[1];$('#rlon').value=c[2]}};
+
+(function(){var c=document.getElementById('glyphs');if(!c)return;
+  var Z='♈♉♊♋♌♍♎♏♐♑♒♓'.split(''),PL='☉☽☿♀♂♃♄♅♆♇⚸☊'.split(''),AS=['☌','△','□','☍','⚹','⚻'],HB='אבגדהוזחטיכלמנסעפצקרשת'.split(''),RM=['0','I','III','VI','VII','XI','XIII','XVII','XXI'],GK=['55.2','2.4','34','59','13','41','64'];
+  var POOL=[].concat(Z,Z,PL,PL,AS,HB,RM,GK),seed=11;function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647}
+  function shape(g,kind,x,y,R){g.beginPath();if(kind===0){for(var k=0;k<2;k++){var o=k?Math.PI/4:0;for(var i=0;i<=4;i++){var a=o+i*Math.PI/2,px=x+R*Math.cos(a),py=y+R*Math.sin(a);i?g.lineTo(px,py):g.moveTo(px,py)}}g.moveTo(x+R*.18,y);g.arc(x,y,R*.18,0,7)}
+    else if(kind===1){var pts=[[0,-1],[0,-.62],[0,-.2],[0,.15],[0,.55],[0,.92],[-.45,.15],[.45,.15],[.2,-.2]];pts.forEach(function(q,i){var px=x+q[0]*R,py=y+q[1]*R;g.moveTo(px+R*.11,py);g.arc(px,py,R*.11,0,7)});g.moveTo(x,y-R);g.lineTo(x,y+R*.92);g.moveTo(x-R*.45,y+R*.15);g.lineTo(x+R*.45,y+R*.15)}
+    else{g.arc(x,y,R,0,7);g.moveTo(x+R*.62,y);g.arc(x,y,R*.62,0,7);for(var i=0;i<12;i++){var a=i*Math.PI/6;g.moveTo(x+R*.62*Math.cos(a),y+R*.62*Math.sin(a));g.lineTo(x+R*Math.cos(a),y+R*Math.sin(a))}}g.stroke()}
+  function draw(){var W=innerWidth,H=innerHeight,d=devicePixelRatio||1;c.width=W*d;c.height=H*d;var g=c.getContext('2d');g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W,H);
+    var col=getComputedStyle(document.documentElement).getPropertyValue('--glyph').trim()||'#9DB7E8';g.fillStyle=g.strokeStyle=col;g.textAlign='center';g.textBaseline='middle';seed=11;
+    var n=Math.round(W*H/26000);for(var i=0;i<n;i++){var x=rnd()*W,y=rnd()*H,sz=14+rnd()*rnd()*46,t=POOL[Math.floor(rnd()*POOL.length)];g.globalAlpha=.05+rnd()*.09;
+      g.save();g.translate(x,y);g.rotate((rnd()-.5)*.5);g.font=(t.length>2?'500 ':'400 ')+Math.round(t.length>2?sz*.6:sz)+"px 'Noto Sans Symbols 2','Noto Sans Symbols','Segoe UI Symbol','DejaVu Sans',sans-serif";g.fillText(t+(t.length===1&&t.charCodeAt(0)>9800&&t.charCodeAt(0)<9900?'︎':''),0,0);g.restore()}
+    for(var k=0;k<Math.max(3,Math.round(W/420));k++){g.globalAlpha=.07+rnd()*.05;g.lineWidth=1;shape(g,k%3,rnd()*W,rnd()*H,34+rnd()*46)}
+    g.globalAlpha=1}
+  draw();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);addEventListener('resize',draw);try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw)}catch(e){}
+  new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});})();
+$('#theme').onclick=function(){var h=document.documentElement;var cur=h.dataset.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');h.dataset.theme=cur==='dark'?'light':'dark'};
+
+function lvl(x){return x>=17?[5,'ведущий']:x>=14?[4,'заметный']:x>=11?[3,'средний']:x>=8?[2,'фоновый']:[1,'слабый']}
+function pill(x){var l=lvl(x);return'<span class="pill l'+l[0]+'">'+l[1]+'</span>'}
+function cell(x,col){return'<div class="cell"><div class="bar" style="color:'+col+'"><i style="width:'+Math.min(100,x*4)+'%"></i></div><div>'+pill(x)+' <span class="num">'+x.toFixed(1)+'%</span></div></div>'}
+function gen(v){return{"Звуковой":"звук","Зрительный":"зрение","Обонятельный":"чутьё","Оральный":"слово","Анальный":"качество","Кожный":"правила","Мышечный":"тело","Уретральный":"лидерство"}[v]}
+function signOf(x){return SIGNS_P[Math.floor(x/30)]}
+
+function portrait(r){
+  var tot={};VEC.forEach(function(v){tot[v]=(r.idx.natal[v]+r.idx.design[v])/2});
+  var ord=VEC.slice().sort(function(a,b){return tot[b]-tot[a]});
+  var hN=VEC.slice().sort(function(a,b){return r.idx.natal[b]-r.idx.natal[a]})[0];
+  var hD=VEC.slice().sort(function(a,b){return r.idx.design[b]-r.idx.design[a]})[0];
+  var low=ord.slice(-2);
+  var s='Ведущее у этого человека — '+gen(ord[0])+' и '+gen(ord[1])+'. ';
+  if(hN!==hD)s+='В голове сильнее всего '+gen(hN)+', а тело живёт через '+gen(hD)+': человек может не замечать в себе того, что окружающие видят сразу. ';
+  else s+='И в голове, и в теле на первом месте '+gen(hN)+' — человек живёт этим цельно. ';
+  s+='Меньше всего опоры на '+gen(low[0])+' и '+gen(low[1])+'.';
+  return s;
+}
+function layerNote(v,a,b){var d=a-b;if(Math.abs(d)<2.5)return'одинаково в голове и в теле';return d>0?'сильнее в голове: человек это осознаёт и хочет':'сильнее в теле: проявляется на автомате, сам человек может не замечать'}
+
+function renderPerson(r,name,example,sex){
+  var B0=r._isReloc?r._base:r,N=B0.idx.natal,D=r.idx.design,NR=r._isReloc?r.idx.natal:null,tot={};VEC.forEach(function(v){tot[v]=Math.round((N[v]+D[v])*5)/10});
+  var ord=VEC.slice().sort(function(a,b){return tot[b]-tot[a]});
+  var L=[{det:r.natal.det,asp:r.natal.asp,lilith:r.pN["Лилит"]},{det:r.design.det,asp:r.design.asp,lilith:r.pD["Лилит"]}];
+  var h='';
+  if(example)h+='<div class="example">Пример расчёта — введите свои данные выше</div>';
+  h+='<div class="head"><span class="who">'+(name||'Без имени')+'</span><span class="meta">рождение '+r.t.date.toISOString().slice(0,16).replace('T',' ')+' UTC · «тело» '+r.dt.date.toISOString().slice(0,16).replace('T',' ')+' UTC · '+(r._isReloc?'<b>место проживания</b> · ':'')+'ASC '+fmt(r.cusps[1])+' · MC '+fmt(r.cusps[10])+'</span></div>';
+  if(r._isReloc)h+=relocChanges(r);
+  h+='<div class="portrait">'+portrait(B0)+'</div><!--BUNDLE-->';
+  h+='<div class="ai"><div class="cath"><svg class="cat" viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M30 58 L26 22 L50 40 Q60 37 70 40 L94 22 L90 58"/><path d="M30 58 Q26 92 60 94 Q94 92 90 58"/><circle cx="46" cy="62" r="9"/><circle cx="74" cy="62" r="9"/><path d="M55 62 Q60 58 65 62"/><path d="M37 60 L30 57 M83 60 L90 57"/><path d="M56 74 L60 78 L64 74"/><path d="M60 78 Q56 84 51 82 M60 78 Q64 84 69 82"/><path d="M40 76 L20 73 M40 80 L21 82 M80 76 L100 73 M80 80 L99 82"/><path d="M60 94 L60 106 M44 106 Q60 100 76 106"/><path d="M38 14 L60 6 L82 14 L60 22 Z"/><path d="M82 14 L82 26"/><circle cx="82" cy="28" r="2"/></g><circle cx="46" cy="63" r="2.6" fill="currentColor"/><circle cx="74" cy="63" r="2.6" fill="currentColor"/><path d="M104 40 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="var(--brass)"/><path d="M14 30 l1.4 3.4 3.4 1.4 -3.4 1.4 -1.4 3.4 -1.4 -3.4 -3.4 -1.4 3.4 -1.4z" fill="var(--brass)"/></svg><div><div class="catn">Учёный Кот</div><div class="small">расскажет, кто вы и зачем пришли · работает на Claude</div></div></div><button type="button" class="play aib" data-act="ai-one" data-pid="'+PREG.length+'" data-name="'+(name||'Без имени').replace(/"/g,'')+'">✦ Моё предназначение — кто я</button><span class="small"> синтез всех сцепок, головы и тела'+(r._isReloc?', с учётом релокации':'')+'</span><div class="aiout"></div></div>';
+  var pid=PREG.push(r)-1,wid='w'+pid+'_'+Math.floor(Math.random()*1e6);
+  h+='<h2>Звуковой образ</h2><p class="small">12 знаков — это 12 полутонов: каждые 30° — один полутон, а точный градус даёт оттенок в центах. Поэтому аспект сам становится интервалом: квадрат — малая терция, тригон — большая терция, оппозиция — тритон, квиконс — кварта. Дома — 12 тактов: планета звучит в такте своего дома. Это художественный перевод карты в звук, а не измерение. Идея звукового образа карты принадлежит Руслану Пасяеву.</p>';
+  h+='<div class="snd"><div class="sbtns"><button type="button" class="play" data-act="chord" data-pid="'+pid+'">▶ Аккорд карты</button><button type="button" class="play" data-act="houses" data-pid="'+pid+'" data-w="'+wid+'">▶ Мелодия домов</button><button type="button" class="play" data-act="hb" data-pid="'+pid+'">▶ Голова, потом тело</button><button type="button" class="play ghost" data-act="stop">■ Стоп</button></div>';
+  h+='<div class="sgrid"><div class="wwrap">'+wheelSVG(r,wid)+'<div class="small" style="text-align:center">нотный круг: планеты, дома-такты, аспекты-интервалы</div></div><div>'+soundPortrait(r)+'</div></div>';
+  h+='<details class="more"><summary>Ноты всех голосов</summary>'+noteTable(r)+'</details></div>';
+  // vectors table
+  h+='<h2>Векторы: голова и тело</h2><p class="small">Доля каждого вектора в вашем собственном профиле (в сумме 100%). Пунктир на полосе — 12,5%, ровное распределение.'+(NR?' Набор векторов врождённый и считается по месту рождения. Колонка «Здесь» показывает, как место проживания делает каждый вектор громче или тише — это сцена, а не замена натуры.':'')+'</p>';
+  h+='<div class="tw"><table class="vt"><tr><th>Вектор</th><th>Голова</th>'+(NR?'<th>Здесь</th>':'')+'<th>Тело (дизайн)</th><th>Итог</th><th>Слой</th></tr>'+ord.map(function(v){var dd=NR?Math.round((NR[v]-N[v])*10)/10:0;return'<tr><td class="vn" style="color:'+VCOL[v]+'">'+v+'</td><td>'+cell(N[v],VCOL[v])+'</td>'+(NR?'<td class="mono '+(dd>1?'good':dd<-1?'bad':'small')+'">'+NR[v].toFixed(1)+'% ('+(dd>0?'+':'')+dd+')</td>':'')+'<td>'+cell(D[v],VCOL[v])+'</td><td>'+pill(tot[v])+'</td><td class="small">'+layerNote(v,N[v],D[v])+'</td></tr>'}).join('')+'</table></div>';
+  var gkh=gkHTML(r,pid);
+  // levels
+  h+='<h2>Уровни, данные при рождении</h2><p class="small">Зелёный — потолок, который карта даёт легко. Красный — куда вектор тянет в стрессе. Объём и уровень — разные вещи: вектора может быть немного, но высокого уровня. Под вектором — генные ключи, которые на нём стоят (тень ключа — куда вектор соскальзывает в зоне риска, дар — его зрелая ступень, сидхи — потолок), и аркан его главного проводника: свет аркана — потолок, тень — зона риска.</p><div class="card">';
+  ord.forEach(function(v){var x=levelFor(v,L),lad=TX.LAD[v];var c=lad[x.ceil-1].split(' — '),k=lad[x.risk-1].split(' — ');
+    h+='<div class="lv"><div><b style="color:'+VCOL[v]+'">'+v+'</b><br>'+pill(tot[v])+'</div><div><div class="rungs">'+[1,2,3,4,5].map(function(i){return'<span class="'+(i===x.ceil?'c':i===x.risk?'k':'')+'"></span>'}).join('')+'</div><span class="lname good">'+x.ceil+' · '+c[0]+'</span> — '+c[1]+'<div class="why">'+x.ceilWhy+'</div></div><div><span class="lname bad">'+x.risk+' · '+k[0]+'</span> — '+k[1]+'<div class="why">'+x.riskWhy+'</div></div></div>'+gkInLadder(r,v)+tarotInLadder(r,v)});
+  h+='</div>'+gkh+tarotHTML(r);
+  // signatures
+  h+='<h2>Почерк каждого вектора</h2><p class="small">Одинаковый уровень у двух людей звучит по-разному. Здесь видно, через какие планеты, в каком знаке и доме, с какими связями проявляется каждый вектор именно у этого человека. Отсюда личный архетип: например, «Пророк-новатор» (звук через Уран) и «Пророк-мистик» (звук через Нептун).</p>';
+  var sigs={};ord.forEach(function(v,i){var lev=levelFor(v,L),sg=signature(r,v,lev);sigs[v]=sg;if(!sg)return;
+    var block='<div class="sig" style="border-color:'+VCOL[v]+'"><div class="sh"><span class="sn" style="color:'+VCOL[v]+'">'+v+'</span><span class="arche">'+sg.arche+'</span>'+pill(tot[v])+'<button type="button" class="play mini" data-act="vec" data-pid="'+pid+'" data-v="'+v+'" aria-label="Послушать '+v+'">▶ звук вектора</button></div><div class="code">'+sg.code+'</div>'+sg.lines.join('')+'<div class="alt">Для сравнения, у других людей этот вектор идёт иначе: '+sg.others+'.</div></div>';
+    if(i===4)h+='<details class="more"><summary>Остальные четыре вектора</summary>';
+    h+=block;if(i===7)h+='</details>';});
+  r._sigs=sigs;r._tot=tot;r._ord=ord;r._L=L;
+  // leading vectors detail
+  h+='<h2>Три ведущих вектора подробно</h2>';
+  ord.slice(0,3).forEach(function(v){var t=TX.VECS.filter(function(x){return x.n===v})[0];
+    h+='<div class="vec" style="border-color:'+VCOL[v]+'"><h3 style="color:'+VCOL[v]+'">'+v+'</h3><p><b>'+t.s+'</b> <span class="small">('+layerNote(v,N[v],D[v])+')</span></p><div class="vg"><div><b>В быту</b>'+t.life+'</div><div><b>В работе</b>'+t.work+'</div><div><b>В отношениях</b>'+t.love+'</div><div><b>Узнать можно по</b>'+t.sign+'</div><div><b class="good">Когда хорошо</b>'+t.good+'</div><div><b class="bad">Когда плохо</b>'+t.bad+'</div></div><div class="steps">'+t.lv.map(function(s,i){return'<div><b>'+['Неживой','Растительный','Животный','Человеческий'][i]+'</b>'+s+'</div>'}).join('')+'</div></div>'});
+  var lw=ord.slice(-2);h+='<div class="note"><b>Чего мало: '+lw.join(' и ').toLowerCase()+'.</b> '+lw.map(function(v){var t=TX.VECS.filter(function(x){return x.n===v})[0];return v+' — '+t.s.charAt(0).toLowerCase()+t.s.slice(1)}).join(' ')+' На эти векторы человек опирается меньше обычного: это стоит отдавать другим людям, а не тянуть на себе.</div>';
+  // configurations + aspects
+  h+='<h2>Узлы карты</h2>';
+  r._cfN=configsExt(r.natal.det,r.cusps);r._cfD=configsExt(r.design.det,null);var cf=r._cfN.map(function(c){return['голова',c]}).concat(r._cfD.map(function(c){return['тело',c]}));var seen={};
+  if(cf.length){h+='<div class="card">';cf.forEach(function(x){var c=x[1],key=x[0]+c[0]+c[1]+c[2].slice().sort().join()+(c[3]||'');if(seen[key])return;seen[key]=1;var txt='';
+    txt=litCf2(c);
+    h+='<div class="asp"><span class="small">'+(x[0]==='голова'?'в сознании':'в теле')+'</span><p>'+txt+'</p></div>'});h+='</div>'}
+  function aspList(asp,label){var gen2=function(a){return OUTER.indexOf(a[0])>=0&&OUTER.indexOf(a[1])>=0};
+    return asp.filter(function(a){return a[3]<=2&&!gen2(a)&&(PERS.indexOf(a[0])>=0||PERS.indexOf(a[1])>=0||a[0]==='ASC'||a[1]==='ASC'||a[0]==='MC'||a[1]==='MC')}).sort(function(a,b){return a[3]-b[3]}).slice(0,8).map(function(a){return'<div class="asp"><span class="small">'+(label==='голова'?'в сознании':'в теле')+' · '+precWord(a[3])+'</span><p>'+litBond(a[0],a[1],a[2],a[3])+'</p></div>'}).join('')}
+  h+='<div class="card"><h3 style="margin-top:0">Самые сильные внутренние связи</h3><p class="small">Как части психики разговаривают друг с другом. Чем точнее связь, тем громче она звучит в жизни. Технические обозначения — мелким шрифтом в скобках.</p>'+aspList(r.natal.asp,'голова')+aspList(r.design.asp,'тело')+'</div>';
+  h+=pointsHTML(r);
+  // planets
+  h+='<h2>Планеты</h2><div class="tw"><table class="pt"><tr><th>Планета</th><th>Голова</th><th>Дом</th><th>Достоинство</th><th>Вес</th><th>Тело</th></tr>';
+  Object.keys(BASE).forEach(function(p){var a=r.natal.det[p],b=r.design.det[p];
+    h+='<tr><td><b>'+p+'</b><br><span class="small">'+ROLE[p]+'</span></td><td class="mono">'+fmt(a.lon)+'</td><td class="small">'+a.house+' — '+HOUSE[a.house]+'</td><td class="'+(a.dig[0]>0?'good':a.dig[0]<0?'bad':'')+'">'+a.dig[1]+'</td><td class="mono small">'+a.pct+'%<br>'+b.pct+'%</td><td class="mono">'+fmt(b.lon)+'<br><span class="'+(b.dig[0]>0?'good':b.dig[0]<0?'bad':'small')+'">'+b.dig[1]+'</span></td></tr>'});
+  h+='</table></div><p class="small">Вес — доля планеты во всей карте: сверху в голове, снизу в теле. Асцендент ('+fmt(r.cusps[1])+') даёт '+(r.natal.pts.ASC?r.natal.pts.ASC.pct:0)+'% веса манерой своего знака, Середина неба ('+fmt(r.cusps[10])+') — '+(r.natal.pts.MC?r.natal.pts.MC.pct:0)+'%; их управители получают добавку. Обитель и экзальтация — планете «удобно», качество проявляется легко. Изгнание и падение — «неуютно»: вектор от этого не меньше, но проявляется через усилие. Лилит (слепое пятно): '+fmt(r.pN["Лилит"])+'. Восходящий узел (куда растёт жизнь): '+fmt(r.pN["Восх. узел"])+'.</p>';
+  h=h.replace('<!--BUNDLE-->',bundleHTML(r,sex,N,D,tot,NR));
+  if(r.reloc&&!r._isReloc)h+='<div class="note">Для этого человека указано место проживания. Переключитесь вверху на «Место проживания», чтобы увидеть разбор с новым Асцендентом и домами.</div>';
+  return h;
+}
+var MODE='birth',LAST=null,PREG=[],CURV=[];
+document.addEventListener('click',function(ev){var b=ev.target.closest('[data-act]');if(!b)return;var a=b.dataset.act,r=PREG[+b.dataset.pid];
+  if(a==='stop'){stopAll();return}
+  if(a==='ai-one'){runAI(b,b.parentNode.querySelector('.aiout'),aiPerson(r,b.dataset.name));return}
+  if(a==='ai-group'){var VV=CURV;runAI(b,b.parentNode.querySelector('.aiout'),aiGroup(VV,VV.map(function(x){return x.name}),contactsText(VV)));return}
+  if(a==='gk'){playGK(r);return}
+  if(a==='chord')playChord(r,'голова');
+  else if(a==='hb')playHeadBody(r);
+  else if(a==='vec')playVector(r,b.dataset.v);
+  else if(a==='houses'){var svg=document.getElementById(b.dataset.w);playHouses(r,function(h){if(!svg)return;svg.querySelectorAll('[data-h]').forEach(function(el){el.classList.toggle('on',+el.dataset.h===h)})})}
+  else if(a==='all-seq'||a==='all-tog'){var vis=PREG.slice(-((LAST&&LAST.list.length)||1));var c=ctx(),t=c.currentTime+.05;
+    if(a==='all-seq')vis.forEach(function(x){t=playChord(x,'голова',t,2.6)+.4});else vis.forEach(function(x){playChord(x,'голова',t,4.5)})}
+});
+function relocView(r){if(MODE!=='reloc'||!r.reloc)return r;var v={};for(var k in r)v[k]=r[k];
+  v.natal=r.reloc.score;v.cusps=r.reloc.cusps;v.geo=r.reloc.geo;v.idx={natal:r.reloc.idx,design:r.idx.design};v._isReloc=true;v._base=r;return v}
+function relocChanges(v){
+  var b=v._base,h='<div class="card reloc"><h3 style="margin-top:0">Что изменило место проживания</h3>';
+  var ab=Math.floor(b.cusps[1]/30),an=Math.floor(v.cusps[1]/30),mb=Math.floor(b.cusps[10]/30),mn=Math.floor(v.cusps[10]/30);
+  h+='<p><b>Асцендент:</b> '+fmt(b.cusps[1])+' → <b>'+fmt(v.cusps[1])+'</b>'+(ab!==an?' — сменился знак: снаружи человек теперь проявляется '+SM[an]+' (раньше — '+SM[ab]+').':' — знак тот же, сдвинулся градус.')+'</p>';
+  h+='<p><b>Середина неба:</b> '+fmt(b.cusps[10])+' → <b>'+fmt(v.cusps[10])+'</b>'+(mb!==mn?' — сменился знак: призвание и роль в обществе здесь окрашены манерой «'+SM[mn]+'».':'.')+'</p>';
+  var moves=[],ang=[];Object.keys(BASE).forEach(function(p){var x=b.natal.det[p],y=v.natal.det[p];
+    if(x.house!==y.house)moves.push('<b>'+p+'</b> ('+ROLE[p]+'): '+x.house+' дом → '+y.house+' дом — теперь '+HOUSE_V[y.house].split(':')[0]);
+    var nb=Math.min(sep(x.lon,b.cusps[1]),sep(x.lon,b.cusps[4]),sep(x.lon,b.cusps[7]),sep(x.lon,b.cusps[10])),nn=Math.min(sep(y.lon,v.cusps[1]),sep(y.lon,v.cusps[4]),sep(y.lon,v.cusps[7]),sep(y.lon,v.cusps[10]));
+    if(nn<=5&&nb>5)ang.push('<b>'+p+'</b> встал на угол карты — здесь эта планета звучит громко, её тема выходит на первый план');
+    if(nb<=5&&nn>5)ang.push('<b>'+p+'</b> ушёл с угла — здесь его тема звучит тише, чем на родине')});
+  if(ang.length)h+='<p><b>Угловые планеты:</b></p><ul class="rl">'+ang.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>';
+  if(moves.length)h+='<p><b>Планеты сменили дома:</b></p><ul class="rl">'+moves.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>';
+  var N0=b.idx.natal,N1=v.idx.natal;var sh=VEC.slice().sort(function(x,y){return(N1[y]-N0[y])-(N1[x]-N0[x])});
+  h+='<p><b>Векторы в голове:</b> '+sh.map(function(x){var d=Math.round((N1[x]-N0[x])*10)/10;return'<span style="color:'+VCOL[x]+'">'+x+'</span> <span class="mono '+(d>1?'good':d<-1?'bad':'')+'">'+(d>0?'+':'')+d+'</span>'}).join(' · ')+'</p><p class="small">Плюс — место выдвигает вектор вперёд, минус — отодвигает в тень. Сами векторы не меняются, меняется сцена, на которой они проявляются.</p></div>';
+  return h;
+}
+function modeBar(list){if(!list.some(function(x){return x.r.reloc}))return'';
+  return'<div class="seg" role="group" aria-label="Карта"><button type="button" data-m="birth" aria-pressed="'+(MODE==='birth')+'">Место рождения</button><button type="button" data-m="reloc" aria-pressed="'+(MODE==='reloc')+'">Место проживания</button></div>'}
+function render(list,example){
+  PREG=[];
+  var keep=LAST&&LAST.list===list?LAST.tab:null;LAST={list:list,example:example,tab:keep};
+  var V=list.map(function(x){return{r:relocView(x.r),name:x.name,sex:x.sex}});
+  var bar=modeBar(list);
+  if(V.length===1){$('#out').innerHTML=bar+renderPerson(V[0].r,V[0].name,example,V[0].sex);bindBar();return}
+  var names=V.map(function(x){return x.name});
+  var bodies=V.map(function(x){return renderPerson(x.r,x.name,false,x.sex)});CURV=V;
+  var c='<div class="ai" style="margin-top:22px"><div class="cath"><svg class="cat" viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M30 58 L26 22 L50 40 Q60 37 70 40 L94 22 L90 58"/><path d="M30 58 Q26 92 60 94 Q94 92 90 58"/><circle cx="46" cy="62" r="9"/><circle cx="74" cy="62" r="9"/><path d="M55 62 Q60 58 65 62"/><path d="M37 60 L30 57 M83 60 L90 57"/><path d="M56 74 L60 78 L64 74"/><path d="M60 78 Q56 84 51 82 M60 78 Q64 84 69 82"/><path d="M40 76 L20 73 M40 80 L21 82 M80 76 L100 73 M80 80 L99 82"/><path d="M60 94 L60 106 M44 106 Q60 100 76 106"/><path d="M38 14 L60 6 L82 14 L60 22 Z"/><path d="M82 14 L82 26"/><circle cx="82" cy="28" r="2"/></g><circle cx="46" cy="63" r="2.6" fill="currentColor"/><circle cx="74" cy="63" r="2.6" fill="currentColor"/><path d="M104 40 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="var(--brass)"/><path d="M14 30 l1.4 3.4 3.4 1.4 -3.4 1.4 -1.4 3.4 -1.4 -3.4 -3.4 -1.4 3.4 -1.4z" fill="var(--brass)"/></svg><div><div class="catn">Учёный Кот</div><div class="small">общий вывод о вас вместе · работает на Claude</div></div></div><button type="button" class="play aib" data-act="ai-group">✦ Попросить общий вывод</button><span class="small"> уникальный синтез по сцепкам, градусам, поколениям и звучанию всех '+V.length+'</span><div class="aiout"></div></div>'+groupMusic(V)+'<div class="snd" style="margin-top:22px"><div class="sbtns"><button type="button" class="play" data-act="all-seq">▶ Каждый по очереди</button><button type="button" class="play" data-act="all-tog">▶ Все вместе</button><button type="button" class="play ghost" data-act="stop">■ Стоп</button></div><p class="small">Аккорды карт по очереди, затем одновременно: как ваши основные тоны ('+V.map(function(x){return x.name+' — '+noteName(x.r.natal.det["Солнце"].lon)}).join(', ')+') звучат рядом.</p></div>'+bundleGroup(V)+gkGroup(V)+tarotGroup(V)+rainbow(V,names)+links(V,names);
+  var n=V.length,cur=LAST.tab!=null?LAST.tab:n;
+  var tabs=names.map(function(nm,i){return'<button class="ptab" role="tab" data-i="'+i+'">'+nm+'</button>'}).concat(['<button class="ptab" role="tab" data-i="'+n+'">Сравнение</button>']);
+  $('#out').innerHTML=bar+'<div class="ptabs" role="tablist">'+tabs.join('')+'</div>'+bodies.map(function(b,i){return'<div class="pp" data-i="'+i+'" hidden>'+b+'</div>'}).join('')+'<div class="pp" data-i="'+n+'" hidden>'+c+'</div>';
+  function sel(i){LAST.tab=+i;document.querySelectorAll('.ptab').forEach(function(x){x.setAttribute('aria-selected',x.dataset.i==i)});document.querySelectorAll('.pp').forEach(function(x){x.hidden=x.dataset.i!=i})}
+  document.querySelectorAll('.ptab').forEach(function(x){x.onclick=function(){sel(x.dataset.i)}});sel(cur);bindBar();
+}
+function rainbow(V,names){
+  var rs=V.map(function(x){return x.r});
+  var h='<h2>Радуга: одни векторы — разные цвета</h2><p class="lead" style="font-size:15px">Здесь нет «выше» и «ниже». Синий не лучше красного. Один и тот же вектор у каждого человека проходит через свои планеты, знаки, дома и связи, поэтому звучит своим цветом. Сравнение показывает именно это: как одно и то же становится разным.'+(MODE==='reloc'?' Сейчас показаны карты мест проживания (у кого оно указано).':'')+'</p>';
+  var ord=VEC.slice().sort(function(x,y){var sx=0,sy=0;rs.forEach(function(r){sx+=r._tot[x];sy+=r._tot[y]});return sy-sx});
+  ord.forEach(function(v,i){
+    if(i===4)h+='<details class="more"><summary>Остальные четыре вектора</summary>';
+    var S=rs.map(function(r){return r._sigs[v]}),Lv=rs.map(function(r){return levelFor(v,r._L)});
+    if(S.some(function(s){return!s}))return;
+    h+='<div class="cv"><h3 style="color:'+VCOL[v]+'">'+v+'</h3>'+compareMulti(v,S,Lv,names,rs)+'</div>';
+    if(i===7)h+='</details>'});
+  // конфигурации
+  h+='<h2>Узлы психики у каждого</h2><p class="small">Конфигурации — это места, где несколько планет сцеплены в одну фигуру. Они задают, как психика держит напряжение и куда направляет силу. У каждого свой рисунок.</p><div class="tw"><table class="ct"><tr><th></th>'+names.map(function(n){return'<th>'+n+'</th>'}).join('')+'</tr>';
+  ['голова','тело'].forEach(function(layer){h+='<tr><th>'+(layer==='голова'?'В голове':'В теле')+'</th>'+rs.map(function(r){var cf=(layer==='голова'?r._cfN:r._cfD)||[],seen={},out=[];cf.forEach(function(c){var k=c[0]+c[1]+c[2].slice().sort().join()+(c[3]||'');if(seen[k])return;seen[k]=1;out.push(cfText(c))});return'<td>'+(out.length?out.join('<br><br>'):'<span class="small">замкнутых фигур нет — планеты работают более независимо, психика гибче, но без единого «стержня»</span>')+'</td>'}).join('')+'</tr>'});
+  return h+'</table></div>';
+}
+function cfText(c){return litCf2(c);
+  if(c[0]==='Перст судьбы')return'<b>Перст судьбы</b>, вершина — '+c[1]+' ('+ROLE[c[1]]+'): эта часть психики всё время подстраивается под '+c[2].map(function(p){return p+' ('+ROLE[p]+')'}).join(' и ')+'. Здесь главная задача развития.';
+  if(c[0]==='Тау-квадрат')return'<b>Тау-квадрат</b>, под давлением — '+c[1]+' ('+ROLE[c[1]]+'): '+c[2].join(' и ')+' тянут в разные стороны. Мощный двигатель и источник усталости.';
+  if(c[0]==='Большой тригон')return'<b>Большой тригон</b> '+c[2].join(' — ')+': замкнутая гармония, работает сама по себе, но наружу выходит только через задачу.';
+  if(c[0]==='Парус')return'<b>Парус</b>, фокус — '+c[1]+' ('+ROLE[c[1]]+'): через эту планету гармоничный треугольник выходит в мир.';
+  return c[0];
+}
+function links(V,names){
+  var h='<h2>Связи между вами</h2><p class="small">Как планеты одного человека соединяются с планетами другого: где вы друг друга усиливаете, где задеваете, где дополняете. Учитываются только точные связи (до 1,5°) между картами рождения.</p>';
+  for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){
+    var A1=V[i].r,B1=V[j].r,pa={},pb={};Object.keys(BASE).forEach(function(p){pa[p]=A1.natal.det[p].lon;pb[p]=B1.natal.det[p].lon});
+    pa.ASC=A1.cusps[1];pa.MC=A1.cusps[10];pb.ASC=B1.cusps[1];pb.MC=B1.cusps[10];
+    var L=[];for(var x in pa)for(var y in pb){if((x==='ASC'||x==='MC')&&(y==='ASC'||y==='MC'))continue;if(OUTER.indexOf(x)>=0&&OUTER.indexOf(y)>=0)continue;var d=sep(pa[x],pb[y]);
+      ASP.forEach(function(a){if(a[0]===150)return;var o=Math.abs(d-a[0]);if(o<=1.5)L.push({x:x,y:y,k:a[1],o:o})})}
+    L.sort(function(a,b){return a.o-b.o});
+    h+='<div class="card"><h3 style="margin-top:0">'+names[i]+' и '+names[j]+'</h3>'+(L.length?L.slice(0,10).map(function(l){var pt=pairText(l.x,l.y,l.k);return'<div class="asp"><span class="small">'+precWord(l.o)+'</span><p>'+capital(PSY_SHORT[l.x]||l.x)+' одного ('+names[i]+') и '+(PSY_SHORT[l.y]||l.y)+' другого ('+names[j]+') '+ASP_LIT[l.k]+'. '+capital(litHow(l.x,l.y,l.k))+'.'+tech(l.x+' '+ASYM[l.k]+' '+nameOf(l.y)+' '+l.o.toFixed(1)+'°')+'</p></div>'}).join(''):'<p class="small">Точных связей нет — вы мало задеваете друг друга напрямую, каждый звучит сам по себе.</p>')+'</div>'}
+  return h;
+}
+function groupMusic(V){
+  var h='<h2>Аккорд вашей группы</h2><div class="card"><p>Тоники (Солнце): '+V.map(function(x){return'<b>'+x.name+'</b> — '+noteName(x.r.natal.det["Солнце"].lon)}).join(', ')+'.</p>';
+  for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){var a=V[i].r.natal.det["Солнце"].lon,b=V[j].r.natal.det["Солнце"].lon,iv=Math.round(sep(a,b)/30)%12;
+    var ml=Math.round(sep(V[i].r.natal.det["Луна"].lon,V[j].r.natal.det["Луна"].lon)/30)%12;
+    h+='<p><b>'+V[i].name+' и '+V[j].name+'</b>: тоники — '+IVL[iv][0]+' ('+IVL[iv][1]+'); Луны — '+IVL[ml][0]+' ('+IVL[ml][1]+').</p>'}
+  return h+'<p class="small">Интервал между Солнцами — как звучат вместе ваши «я», между Лунами — ваши чувства и привычки.</p></div>';
+}
+function contactsText(V){var out=[];for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){var A1=V[i].r,B1=V[j].r,pa={},pb={};Object.keys(BASE).forEach(function(p){pa[p]=A1.natal.det[p].lon;pb[p]=B1.natal.det[p].lon});pa.ASC=A1.cusps[1];pb.ASC=B1.cusps[1];
+  for(var x in pa)for(var y in pb){if(OUTER.indexOf(x)>=0&&OUTER.indexOf(y)>=0)continue;var d=sep(pa[x],pb[y]);ASP.forEach(function(a){if(a[0]===150)return;var o=Math.abs(d-a[0]);if(o<=1.5)out.push(V[i].name+' '+x+' '+a[1]+' '+V[j].name+' '+y+' '+o.toFixed(1)+'°')})}}return out.join('; ')}
+function capital(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function bindBar(){document.querySelectorAll('.seg button').forEach(function(btn){btn.onclick=function(){if(MODE===btn.dataset.m)return;MODE=btn.dataset.m;var tab=LAST.tab;render(LAST.list,LAST.example);if(tab!=null){LAST.tab=tab}}})}
+function num(id){return parseFloat(String($(id).value).replace(',','.'))}
+function run(example){
+  var e=$('#err');e.hidden=true;
+  var d=$('#date').value,t=$('#time').value,lat=num('#lat'),lon=num('#lon');
+  if(!d||!t||isNaN(lat)||isNaN(lon)){e.textContent='Заполните дату, время, широту и долготу — без них карту не построить.';e.hidden=false;return}
+  if(Math.abs(lat)>66){e.textContent='Для широт выше 66° система домов Плацидус не работает. Укажите ближайший город южнее.';e.hidden=false;return}
+  var extra=example?[]:[2,3].filter(function(n){return $('#date'+n).value});
+  for(var i=0;i<extra.length;i++){var n=extra[i];if(!$('#time'+n).value||isNaN(num('#lat'+n))||isNaN(num('#lon'+n))){e.textContent='Для человека №'+n+' заполните дату, время, широту и долготу — или очистите его дату.';e.hidden=false;return}}
+  var p=d.split('-').map(Number),q=t.split(':').map(Number);
+  $('#go').disabled=true;$('#busy').hidden=false;
+  setTimeout(function(){try{
+    SUNF=parseFloat($('#sunf').value);
+    var list=[{r:fullCalc({y:p[0],mo:p[1],d:p[2],h:q[0],mi:q[1],tz:parseFloat($('#tz').value),lat:lat,lon:lon,rlat:num('#rlat'),rlon:num('#rlon')}),name:$('#name').value.trim()||'Первый',sex:example?'':$('#sex').value}];
+    extra.forEach(function(n){var pp=$('#date'+n).value.split('-').map(Number),qq=$('#time'+n).value.split(':').map(Number);
+      list.push({r:fullCalc({y:pp[0],mo:pp[1],d:pp[2],h:qq[0],mi:qq[1],tz:parseFloat($('#tz'+n).value),lat:num('#lat'+n),lon:num('#lon'+n),rlat:num('#rlat'+n),rlon:num('#rlon'+n)}),name:$('#name'+n).value.trim()||('Человек '+n),sex:$('#sex'+n).value})});
+    MODE=list.some(function(x){return x.r.reloc})?'reloc':'birth';LAST=null;
+    render(list,example);if(!example)$('#out').scrollIntoView({behavior:'smooth'})
+  }catch(x){e.textContent='Не получилось посчитать: '+x.message;e.hidden=false}$('#go').disabled=false;$('#busy').hidden=true},30);
+}
+$('#form').addEventListener('submit',function(ev){ev.preventDefault();run(false)});
+// пример при открытии
+$('#name').value='Пример';$('#date').value='1990-08-15';$('#time').value='14:20';$('#city').value='1';$('#lat').value=55.756;$('#lon').value=37.617;$('#tz').value='4';
+if(typeof Astronomy!=='undefined')run(true);else{$('#err').textContent='Не загрузилась астрономическая библиотека. Проверьте интернет и обновите страницу.';$('#err').hidden=false}
+</script>
+
+</body></html>
