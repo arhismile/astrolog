@@ -193,7 +193,8 @@ body{background:radial-gradient(ellipse at 94% 5%,#25e2c0 0,transparent 35%),rad
 @media(max-width:700px){.mast{padding:22px 20px 74px}.issue{gap:8px;margin-bottom:30px;font-size:10px}.hero-grid{grid-template-columns:1fr;gap:14px}.mast h1{font-size:64px}.mast .lead{font-size:24px;margin-top:20px}.hero-art{width:70%;max-width:310px;justify-self:end;margin-top:-25px}.hero-copy{position:relative;z-index:2}.hero-note{max-width:28ch;font-size:13px}.hero-link{font-size:12px;padding:10px 17px;gap:14px}.hero-art:before{inset:15% -3% 4%}.cat-sticker{font-size:11px;padding:10px 14px;right:0}.star-one{font-size:40px}.hero-path{margin-top:32px;gap:12px;font-size:10px;justify-content:space-between}.hero-path b{width:20px;height:20px;font-size:9px;margin-right:4px}.wrap{padding:0 14px 65px}.sheet{padding:25px 20px;margin-top:-38px;box-shadow:6px 7px 0 #05229c4a}.form-heading h2{font-size:26px}.sun-cards{grid-template-columns:1fr}.sun-card{padding:14px}.sun-card:has(input:checked){padding:13px}.reading-section>summary{padding:18px 52px 18px 18px}.reading-section>summary>span{font-size:19px}.reading-section>summary:after{top:21px;right:14px}.section-content{padding:0 14px 18px}.card,.snd{padding:16px}.ai .cat{width:108px;height:108px}.ai .catn{font-size:25px}.head .who{font-size:34px}.head .meta{line-height:1.7}.facts dd{overflow-wrap:anywhere}.form-heading p{font-size:13px}.mast .eyebrow{font-size:11px}.hero-path span{white-space:nowrap}}
 @media(max-width:380px){.hero-path{gap:10px;justify-content:flex-start}.mast h1{font-size:57px}.hero-art{margin-top:5px}.sheet{padding:22px 15px}.sun-card:first-child .sun-title{padding-right:90px}.sun-title{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.hero-link{transition:none}}
-</style>
+.reloc h4{font-size:16px;line-height:1.45;margin:0 0 12px;color:#18376b}.reloc-item{padding:20px 0;border-top:1px solid #dbe4f0;margin-top:16px}.reloc-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}.reloc-compare>div{background:#edf3ff;padding:14px;border-radius:8px}.reloc-compare>div+div{background:#e5f8ee}.reloc-compare span{display:block;text-transform:uppercase;letter-spacing:.05em;font-size:10px;font-weight:700;color:#526884}.reloc-compare p{font-size:14px;line-height:1.65;margin:7px 0 0}.reloc-question{font-size:14px;line-height:1.65;border-left:3px solid #59cdb0;padding-left:12px;margin-top:14px}.reloc-tech{font-size:12px;color:#64748b;margin:12px 0 0}.reloc-tech summary{cursor:pointer}.reloc-tech p{font-size:12px}.reloc .reloc-subheading{margin-top:26px}.reloc-explanation,.reloc-areas{border-top:1px solid #dbe4f0;margin-top:12px;padding-top:14px}.reloc-explanation>summary,.reloc-areas>summary{cursor:pointer;line-height:1.5;font-size:15px;color:#24489d}.reloc-explanation>summary>span,.reloc-areas>summary>span{display:block;font-size:12px;color:#64748b;margin-top:4px;padding-left:17px}.reloc-explanation>div{padding:8px 0 4px}.reloc-explanation p{font-size:14px;line-height:1.7;max-width:70ch}@media(max-width:640px){.reloc-compare{grid-template-columns:1fr}.reloc-compare>div{padding:12px}.reloc-item{padding-top:16px}.reloc-explanation>summary{font-size:14px}}
+.calculated-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.calculated-grid article{background:#f0f5ff;padding:16px;border-radius:10px;border-top:3px solid #65cdb1}.calculated-grid h4{font-size:17px;margin:0 0 10px}.calculated-grid p{font-size:13px;line-height:1.65}.cat-method{font-size:12px;border-bottom:1px solid #ffffff50;padding-bottom:12px}.aiout>h3{margin-top:22px}.aiout>p{max-width:70ch}.calculated-overview h3{font-size:23px;margin:8px 0 10px}@media(max-width:700px){.calculated-grid{grid-template-columns:1fr}}</style>
 
 <canvas id="glyphs" aria-hidden="true"></canvas>
 <header class="mast"><div class="mi">
@@ -1019,13 +1020,46 @@ function bHead(vs,tot){ // главная пара: сильнейший ниж�
   if(lo.length&&up.length)return[lo[0],up[0]];return vs.slice(0,2);
 }
 function bundleHTML(r,sex,N,D,tot,NR){
-  var entries=readSelf(r).vectors||{};var vs=VEC.filter(function(v){var x=entries[v]||{};return x.head==='yes'||x.body==='yes'});
-  r._bvs=vs;r._bundle=vs.length?vs.join(' · '):'Темы ещё не отмечены';
-  return '<div class="card"><b>Темы, в которых я узнаю себя</b><p>'+esc(r._bundle)+'</p><p class="small">Это ваши отметки. Их можно изменить в разделе «Мои наблюдения».</p></div>';
+  var vs=bundleOf(tot),hp=bHead(vs,tot),k=bKey(hp[0],hp[1]),B=BUND[k];
+  var h='<h2>Расчётная связка векторов</h2><p class="small">Эту связку подбирает исходная формула по данным рождения. Ниже — её авторская трактовка: сочетание тем, способы проявления и возможные противоречия. Личные отметки дополняют разбор, но не нужны для расчёта.</p>';
+  h+='<div class="sig" style="border-color:'+VCOL[hp[0]]+'"><div class="sh"><span class="sn">'+bName(vs,sex)+'</span>'+(B?'<span class="arche">'+B[0]+'</span>':'')+'</div>';
+  h+='<div class="code">'+vs.map(function(v){return'<span style="color:'+VCOL[v]+'">'+v+'</span> — '+layerNote(v,N[v],D[v])}).join('<br>')+'</div>';
+  if(B){
+    var sp=sex==='f'?B[3]:sex==='m'?B[4]:'';
+    h+='<p><b>Дар.</b> '+B[1]+'</p>';
+    if(sp)h+='<p>'+sp+'</p>';
+    h+='<p><b>Тень.</b> '+B[2]+'</p>';
+    h+='<p class="small">Как они уживаются: '+bRel(hp[0],hp[1])+'.</p>';
+  }
+  // астрологическая сцепка проводников
+  var S1=r._sigs[hp[0]],S2=r._sigs[hp[1]];
+  if(S1&&S2){var a=S1.top,b=S2.top;
+    if(a.p===b.p)h+='<p>В вашей карте эти два вектора несёт <b>одна и та же сила</b> — '+PSY[a.p]+'. Связка спаяна изнутри: одно без другого у вас не включается.'+tech(a.p+' — проводник обоих')+'</p>';
+    else{var d=sep(a.d.lon,b.d.lon),hit=null;ASP.forEach(function(x){var o=Math.abs(d-x[0]);if(o<=4&&(!hit||o<hit.o))hit={k:x[1],o:o}});
+      if(hit)h+='<p>В вашей карте проводники этих векторов — '+PSY_SHORT[a.p]+' и '+PSY_SHORT[b.p]+' — '+ASP_LIT[hit.k]+' ('+precWord(hit.o)+'). Значит, связка у вас не просто сумма: '+(hit.k==='Квадрат'||hit.k==='Оппозиция'||hit.k==='Квиконс'?'векторы постоянно спорят, и из этого спора рождается движение.':'векторы питают друг друга и включаются вместе.')+tech(a.p+' '+ASYM[hit.k]+' '+nameOf(b.p)+' '+hit.o.toFixed(1)+'°')+'</p>';
+      else h+='<p>Проводники этих векторов — '+PSY_SHORT[a.p]+' и '+PSY_SHORT[b.p]+' — в карте напрямую не связаны: векторы звучат по очереди, каждый в своей сфере, и переключение между ними — отдельный навык.</p>';}
+  }
+  if(NR)h+='<p class="small">Связка рассчитывается по месту рождения. Трактовка нового места приведена отдельно в сравнении мест проживания.</p>';
+  // тройка
+  if(vs.length>=3){var tk=vs.slice(0,3).sort(function(a,b){return BORD.indexOf(a)-BORD.indexOf(b)}).join('|');if(BTRI[tk])h+='<p><b>Тройка.</b> '+BTRI[tk]+'</p>'}
+  // остальные пары
+  var rest=[];for(var i=0;i<vs.length;i++)for(var j=i+1;j<vs.length;j++){var kk=bKey(vs[i],vs[j]);if(kk!==k&&BUND[kk])rest.push('<p><b>'+capital(BPREF[kk.split('|')[0]])+'-'+BEND[kk.split('|')[1]][0]+' пара</b> — <i>'+BUND[kk][0].toLowerCase()+'</i>. '+BUND[kk][1]+' <span class="small">Тень: '+BUND[kk][2].charAt(0).toLowerCase()+BUND[kk][2].slice(1)+'</span></p>')}
+  if(rest.length)h+='<details class="more"><summary>Другие пары внутри связки</summary>'+rest.join('')+'</details>';
+  h+='<p class="small">Нет хороших и плохих связок. У развитого человека векторы не воюют, а включаются вовремя; противоречия обостряются, когда свойства не находят применения.'+(sex?'':' Укажите пол в форме — для некоторых связок (кожно-зрительная женщина, анально-зрительный мужчина и др.) есть особое описание.')+'</p></div>';
+  r._bundle=bName(vs,sex)+(B?' — «'+B[0]+'»':'')+' ('+vs.map(function(v){return v}).join(', ')+')';
+  r._bvs=vs;
+  return h;
 }
-function bundleGroup(V){return '<h2>Личные отметки рядом</h2><div class="card">'+V.map(function(x){return '<p><b>'+esc(x.name)+'</b>: '+esc(x.r._bundle||'Темы ещё не отмечены')+'</p>'}).join('')+'<p class="small">Отметки каждого человека отражают его собственное прочтение.</p></div>'}
-// Расчётные точки
+function bundleGroup(V){
+  var h='<h2>Ваши связки рядом</h2><div class="card">'+V.map(function(x){return'<p><b>'+x.name+'</b>: '+(x.r._bundle||'—')+'</p>'}).join('');
+  var Q=[];for(var i=0;i<V.length;i++)for(var j=0;j<V.length;j++){if(i===j)continue;(V[i].r._bvs||[]).forEach(function(a){(V[j].r._bvs||[]).forEach(function(b){
+    if(a!==b&&QUART[a]===QUART[b]&&BORD.indexOf(a)<BORD.indexOf(b)&&(V[i].r._bvs.indexOf(b)<0||V[j].r._bvs.indexOf(a)<0))Q.push('<p><b>'+V[i].name+'</b> приносит '+a.toLowerCase()+' вектор, <b>'+V[j].name+'</b> — '+b.toLowerCase()+'. Вместе вы собираете целую квартель '+QUART[a]+': '+QMEAN[QUART[a]]+'. То, чего меньше у одного, держит другой.</p>')})})}
+  var seen={};Q=Q.filter(function(x){if(seen[x])return false;seen[x]=1;return true});
+  h+=Q.length?Q.join(''):'<p class="small">Дополняющих пар между вашими связками нет: каждый приносит в общее своё, без зеркальных половинок.</p>';
+  return h+'</div>';
+}
 
+// ===== Расчётные точки и расширенные фигуры =====
 function oscMoon(t){ // оскулирующая орбита Луны: истинный узел и истинная Лилит (апогей)
   var s=A.GeoMoonState(t);
   var r=A.Ecliptic(new A.Vector(s.x,s.y,s.z,t)).vec,v=A.Ecliptic(new A.Vector(s.vx,s.vy,s.vz,t)).vec;
@@ -1292,14 +1326,36 @@ var AI_RULES='Ты помогаешь человеку исследовать о
 function aiPerson(r,name){return AI_RULES+'\nСопоставь карту с личными наблюдениями. Дай несколько возможных трактовок и вопросов о конкретных ситуациях, исключениях и изменениях со временем. Не выводи ведущие или слабые качества из числовых коэффициентов.\n'+dumpChart(r,name)}
 function aiGroup(V,names,contacts){return AI_RULES+'\n\nСделай общий вывод о группе из '+V.length+' человек: '+names.join(', ')+'. Разделы: ## Радуга (каждый одним образом-цветом и почему, из его конкретных сцепок); ## Один вектор — разные цвета (2–3 вектора, где различие почерков ярче всего, с деталями); ## Как ваши сцепки соединяются друг с другом (по межкарточным контактам и по тому, как конфигурация одного отвечает конфигурации другого); ## Разные поколения и градусы (что даёт разница годов и поколенческих планет); ## Аккорд вместе (как звучат ваши тоники и интервалы между ними); ## Как друг другу помогать. Объём — 700–900 слов. Не сравнивай «кто сильнее».\n\n'+V.map(function(x){return dumpChart(x.r,x.name)}).join('\n\n---\n\n')+'\n\nМЕЖКАРТОЧНЫЕ КОНТАКТЫ (орб≤1.5°):\n'+contacts}
 function mdLite(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/^## (.*)$/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n{2,}/g,'</p><p>').replace(/\n/g,'<br>')}
+
+function calculatedOverview(r,ord){return '<div class="card calculated-overview"><span class="paper-label">Результат расчёта</span><h3>Три темы вашей карты</h3><p class="small">Выбраны исходной формулой. Для разбора не нужно заполнять самооценку.</p><div class="calculated-grid">'+ord.slice(0,3).map(function(v){var t=TX.VECS.find(function(x){return x.n===v}),sg=r._sigs[v],top=sg&&sg.top;return '<article><h4 style="color:'+VCOL[v]+'">'+v+'</h4><p>'+t.s+'</p>'+(top?'<p class="small"><b>Основание:</b> '+top.p+' — '+fmt(top.d.lon)+(top.d.house?', '+top.d.house+' дом':'')+' · '+top.layer+'.</p>':'')+'<p><b>В работе:</b> '+t.work+'</p><p><b>В отношениях:</b> '+t.love+'</p></article>'}).join('')+'</div><p class="small">Расчётная трактовка описывает модель карты; сопоставляйте её со своим опытом.</p></div>'}
+function catLocalPerson(r,name){
+  var ord=r._ord||VEC,det=r.natal.det,body=r.design.det;
+  var h='<p class="cat-method">Разбор по встроенным правилам и данным вашей карты. Работает без подключения к внешнему ИИ.</p><h3>'+esc(name||'Ваша карта')+': общий портрет</h3><p>'+portrait(r._base||r)+'</p><p><b>Расчётная связка:</b> '+esc(r._bundle||ord.slice(0,3).join(', '))+'.</p>';
+  ord.slice(0,3).forEach(function(v){var t=TX.VECS.find(function(x){return x.n===v}),sg=signature(r,v),top=sg&&sg.top;
+    h+='<h3>'+v+'</h3><p>'+t.s+'</p>';if(top){h+='<p>В этой карте тема раскрывается '+VP[v][top.p]+'. '+top.p+' находится в '+SIGNS_P[Math.floor(top.d.lon/30)]+' ('+fmt(top.d.lon)+'), слой — '+top.layer+'. '+(top.d.house?'Связанная сфера: '+HOUSE[top.d.house]+'.':'')+'</p>';var links=aspOf(top,2);links.forEach(function(a){h+='<p>'+litBond(top.p,a.q,a.k,a.o)+'</p>'})}
+    h+='<p><b>В работе:</b> '+t.work+' <b>В отношениях:</b> '+t.love+'</p>';
+  });
+  h+='<h3>Карта рождения и слой «тела»</h3><p><b>Солнце:</b> '+fmt(det['Солнце'].lon)+' / '+fmt(body['Солнце'].lon)+'. В модели это темы собственного выбора и самовыражения.</p><p><b>Луна:</b> '+fmt(det['Луна'].lon)+' / '+fmt(body['Луна'].lon)+'. Здесь рассматриваются чувства, привычки и потребность в комфорте.</p><p class="small">Это два символических слоя с разными правилами учёта домов, а не измерение сознания и бессознательного.</p>';
+  if(r._cfN&&r._cfN.length)h+='<h3>Связи, объединяющие карту</h3>'+r._cfN.slice(0,2).map(function(c){return '<p>'+litCf2(c)+'</p>'}).join('');
+  if(r._gk&&r._gk.length)h+='<h3>Генные ключи</h3>'+r._gk.slice(0,4).map(function(x){return '<p><b>'+x.name+': '+x.key+'.'+x.line+'</b> — '+x.sgs.join(' → ')+'.</p>'}).join('');
+  if(r._isReloc)h+='<h3>Выбранное место проживания</h3><p>Изменились дома и точки местного горизонта. Полное сопоставление сфер и примеры приведены в разделе «Что сравнить в своей жизни после переезда».</p>';
+  var notes=readSelf(r).vectors||{},entries=Object.keys(notes).filter(function(v){var x=notes[v];return x.note||x.head||x.body});
+  if(entries.length)h+='<h3>Ваши наблюдения отдельно от расчёта</h3>'+entries.map(function(v){var x=notes[v];function label(z){var t=RECOGNITION.find(function(a){return a[0]===z});return t?t[1]:'Пока не знаю'}return '<p><b>'+esc(v)+'</b>: осознанные выборы — '+label(x.head)+'; автоматические реакции — '+label(x.body)+'. '+(x.note?'<br>'+esc(x.note):'')+'</p>'}).join('');
+  return h+'<p class="small">Это авторская символическая трактовка, которую можно уточнять по конкретным событиям и наблюдениям.</p>';
+}
+function catLocalGroup(V){var h='<p class="cat-method">Сопоставление по встроенным правилам: используется расчёт каждого человека и точные межкарточные связи.</p>';V.forEach(function(x){h+='<h3>'+esc(x.name)+'</h3><p>'+portrait(x.r._base||x.r)+'</p><p><b>Связка:</b> '+esc(x.r._bundle||'')+'</p>'});for(var i=0;i<V.length;i++)for(var j=i+1;j<V.length;j++){var a=V[i],b=V[j],common=(a.r._bvs||[]).filter(function(v){return (b.r._bvs||[]).includes(v)});h+='<h3>'+esc(a.name)+' и '+esc(b.name)+'</h3><p>'+(common.length?'Общие темы в расчётных связках: '+common.join(', ')+'. Они могут выражаться по-разному: сравните проводники и знаки в разделе «Радуга».':'Формула выделяет разные связки. Их содержание приведено выше; это не оценка совместимости.')+'</p>'}var contacts=contactsText(V);if(contacts)h+='<details><summary>Точные связи между картами</summary><p>'+esc(contacts)+'</p></details>';return h}
+function localCatFor(btn){return btn.dataset.act==='ai-group'?catLocalGroup(CURV):catLocalPerson(PREG[+btn.dataset.pid],btn.dataset.name)}
+
 var AI_CTL=null;
 async function runAI(btn,out,prompt){
-  if(!SAMPLE){out.innerHTML='<p class="small">В этом файле доступен расчёт карты и личные заметки. Для свободного ответа Учёного Кота нужно подключение к ИИ в поддерживаемой среде.</p>';return}
+  var local=localCatFor(btn);out.innerHTML=local;
+  if(!SAMPLE)return;
   if(AI_CTL)AI_CTL.abort();AI_CTL=new AbortController();var my=AI_CTL;
-  btn.disabled=true;out.innerHTML='<p class="small">Учёный Кот читает карту и думает… (обычно до минуты)</p>';
-  try{await SAMPLE(prompt,{modelTier:'complex',signal:my.signal,onText:function(u){out.innerHTML='<p>'+mdLite(u.text)+'</p>'}})}
-  catch(e){if(e.code==='cancelled'){}else if(e.code==='not_granted'||e.code==='sampling_disabled'){out.innerHTML='<p class="small">На этой странице не разрешён доступ к ИИ.</p>'}else if(e.code==='rate_limited'){out.innerHTML=(e.text?'<p>'+mdLite(e.text)+'</p>':'')+'<p class="small">Слишком много запросов. Попробуйте чуть позже.</p>'}else{out.innerHTML=(e.text?'<p>'+mdLite(e.text)+'</p>':'')+'<p class="small">Ответ прервался. Можно нажать ещё раз.</p>'}}
-  finally{btn.disabled=false}
+  btn.disabled=true;out.innerHTML=local+'<p class="small">Готовится дополнительный ИИ-разбор…</p>';
+  var extra=document.createElement('div');out.appendChild(extra);
+  try{await SAMPLE(prompt,{modelTier:'complex',signal:my.signal,onText:function(u){extra.innerHTML='<h3>Дополнительный ИИ-разбор</h3><p>'+mdLite(u.text)+'</p>'}})}
+  catch(e){extra.innerHTML='<p class="small">Дополнительный ИИ-разбор сейчас недоступен. Встроенный разбор карты приведён выше.</p>'}
+  finally{btn.disabled=false;var pending=out.querySelector('.small:last-of-type');if(pending&&pending.textContent==='Готовится дополнительный ИИ-разбор…')pending.remove()}
 }
 
 </script>
@@ -1358,8 +1414,12 @@ $('#theme').onclick=function(){var h=document.documentElement;var cur=h.dataset.
 function gen(v){return{"Звуковой":"звук","Зрительный":"зрение","Обонятельный":"чутьё","Оральный":"слово","Анальный":"качество","Кожный":"правила","Мышечный":"тело","Уретральный":"лидерство"}[v]}
 function signOf(x){return SIGNS_P[Math.floor(x/30)]}
 
-function portrait(r){return 'Карта предлагает возможные трактовки. Какие из них вы узнаёте в своих выборах и реакциях? Вспомните конкретные ситуации, включая те, где описание не подходит.'}
-function layerNote(){return 'трактовка для сопоставления с опытом'}
+function portrait(r){
+  var totals={};VEC.forEach(function(v){totals[v]=(r.idx.natal[v]+r.idx.design[v])/2});var ord=VEC.slice().sort(function(a,b){return totals[b]-totals[a]});
+  var n=VEC.slice().sort(function(a,b){return r.idx.natal[b]-r.idx.natal[a]})[0],d=VEC.slice().sort(function(a,b){return r.idx.design[b]-r.idx.design[a]})[0];
+  return 'В расчётном портрете на первый план выходят '+gen(ord[0])+' и '+gen(ord[1])+'. '+(n===d?'В обоих слоях формула выделяет тему «'+gen(n)+'».':'В карте рождения формула выделяет тему «'+gen(n)+'», а в слое «тела» — «'+gen(d)+'».')+' Ниже — что это означает в трактовке модели и какие положения карты лежат в основе.';
+}
+function layerNote(v,a,b){var delta=a-b;return Math.abs(delta)<2.5?'модель выделяет тему в обоих слоях':delta>0?'больше акцента в карте рождения':'больше акцента в слое «тела»'}
 
 function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 var SELF_MEMORY={};
@@ -1379,7 +1439,7 @@ document.addEventListener('input',function(e){if(e.target.matches('textarea[data
 
 function renderPerson(r,name,example,sex){
   var B0=r._isReloc?r._base:r,N=B0.idx.natal,D=r.idx.design,NR=r._isReloc?r.idx.natal:null,tot={};VEC.forEach(function(v){tot[v]=Math.round((N[v]+D[v])*5)/10});
-  var ord=VEC.slice();
+  var ord=VEC.slice().sort(function(a,b){return tot[b]-tot[a]});
   var L=[{det:r.natal.det,asp:r.natal.asp,lilith:r.pN["Лилит"]},{det:r.design.det,asp:r.design.asp,lilith:r.pD["Лилит"]}];
   r._selfKey='vector-self-v2:'+JSON.stringify([r.t.date.toISOString(),(r._base||r).geo,name||'']);
   var h='';
@@ -1387,13 +1447,13 @@ function renderPerson(r,name,example,sex){
   h+='<div class="head"><span class="who">'+(name||'Без имени')+'</span><span class="meta">рождение '+r.t.date.toISOString().slice(0,16).replace('T',' ')+' UTC · «тело» '+r.dt.date.toISOString().slice(0,16).replace('T',' ')+' UTC · '+(r._isReloc?'<b>место проживания</b> · ':'')+'ASC '+fmt(r.cusps[1])+' · MC '+fmt(r.cusps[10])+'</span></div>';
   if(r._isReloc)h+=relocChanges(r);
   h+='<div class="portrait">'+portrait(B0)+'</div><!--BUNDLE-->';
-  h+='<div class="ai"><div class="cath"><img class="cat" src="'+CAT_IMG+'" alt="Учёный Кот в очках с раскрытой книгой"><div><div class="catn">Учёный Кот</div><div class="small">поможет сопоставить трактовки с опытом</div></div></div><button type="button" class="play aib" data-act="ai-one" data-pid="'+PREG.length+'" data-name="'+(name||'Без имени').replace(/"/g,'')+'">✦ Осмыслить мои наблюдения</button><span class="small"> синтез всех сцепок, головы и тела'+(r._isReloc?', с учётом релокации':'')+'</span><div class="aiout"></div></div>';
+  h+='<div class="ai"><div class="cath"><img class="cat" src="'+CAT_IMG+'" alt="Учёный Кот в очках с раскрытой книгой"><div><div class="catn">Учёный Кот</div><div class="small">разбор по рассчитанным положениям планет</div></div></div><button type="button" class="play aib" data-act="ai-one" data-pid="'+PREG.length+'" data-name="'+(name||'Без имени').replace(/"/g,'')+'">✦ Разобрать мою карту</button><span class="small"> синтез всех сцепок, головы и тела'+(r._isReloc?', с учётом релокации':'')+'</span><div class="aiout"></div></div>';
   var pid=PREG.push(r)-1,wid='w'+pid+'_'+Math.floor(Math.random()*1e6);
   h+='<h2>Звуковой образ</h2><p class="small">12 знаков — это 12 полутонов: каждые 30° — один полутон, а точный градус даёт оттенок в центах. Поэтому аспект сам становится интервалом: квадрат — малая терция, тригон — большая терция, оппозиция — тритон, квиконс — кварта. Дома — 12 тактов: планета звучит в такте своего дома. Это художественный перевод карты в звук, а не измерение. Идея звукового образа карты принадлежит Руслану Пасяеву.</p>';
   h+='<div class="snd"><div class="sbtns"><button type="button" class="play" data-act="chord" data-pid="'+pid+'">▶ Аккорд карты</button><button type="button" class="play" data-act="houses" data-pid="'+pid+'" data-w="'+wid+'">▶ Мелодия домов</button><button type="button" class="play" data-act="hb" data-pid="'+pid+'">▶ Голова, потом тело</button><button type="button" class="play ghost" data-act="stop">■ Стоп</button></div>';
   h+='<div class="sgrid"><div class="wwrap">'+wheelSVG(r,wid)+'<div class="small" style="text-align:center">нотный круг: планеты, дома-такты, аспекты-интервалы</div></div><div>'+soundPortrait(r)+'</div></div>';
   h+='<details class="more"><summary>Ноты всех голосов</summary>'+noteTable(r)+'</details></div>';
-  h+=selfHTML(r,pid);
+  var reflectionMarkup=selfHTML(r,pid);
   var gkh=gkHTML(r,pid);
   h+=gkh+tarotHTML(r);
   // signatures
@@ -1422,7 +1482,8 @@ function renderPerson(r,name,example,sex){
   Object.keys(BASE).forEach(function(p){var a=r.natal.det[p],b=r.design.det[p];
     h+='<tr><td><b>'+p+'</b><br><span class="small">'+ROLE[p]+'</span></td><td class="mono">'+fmt(a.lon)+'</td><td class="small">'+a.house+' — '+HOUSE[a.house]+'</td><td class="'+(a.dig[0]>0?'good':a.dig[0]<0?'bad':'')+'">'+a.dig[1]+'</td><td class="mono">'+fmt(b.lon)+'<br><span class="'+(b.dig[0]>0?'good':b.dig[0]<0?'bad':'small')+'">'+b.dig[1]+'</span></td></tr>'});
   h+='</table></div><p class="small">Асцендент: '+fmt(r.cusps[1])+'. Середина неба: '+fmt(r.cusps[10])+'. Обитель, экзальтация, изгнание и падение — астрологические категории положения планеты. Они не определяют зрелость или предел возможностей человека.</p>';
-  h=h.replace('<!--BUNDLE-->',bundleHTML(r,sex,N,D,tot,NR));
+  h=h.replace('<!--BUNDLE-->',bundleHTML(r,sex,N,D,tot,NR)+calculatedOverview(r,ord));
+  h+=reflectionMarkup;
   if(r.reloc&&!r._isReloc)h+='<div class="note">Для этого человека указано место проживания. Переключитесь вверху на «Место проживания», чтобы увидеть разбор с новым Асцендентом и домами.</div>';
   return h;
 }
@@ -1441,20 +1502,36 @@ document.addEventListener('click',function(ev){var b=ev.target.closest('[data-ac
 });
 function relocView(r){if(MODE!=='reloc'||!r.reloc)return r;var v={};for(var k in r)v[k]=r[k];
   v.natal=r.reloc.score;v.cusps=r.reloc.cusps;v.geo=r.reloc.geo;v.idx={natal:r.reloc.idx,design:r.idx.design};v._isReloc=true;v._base=r;return v}
+var RELOC_TOPICS={
+ "Солнце":{title:"Собственные желания и самовыражение",theme:"свои цели, ощущение собственного «я» и желание быть замеченным",more:"Может стать актуальнее вопрос: чего я хочу сам(а), где хочу проявиться и за что готов(а) отвечать? Например, захочется предложить свою идею или занять более самостоятельную роль.",less:"Потребность постоянно заявлять о себе может меньше занимать ваше внимание. Посмотрите, стало ли легче участвовать в общем деле без необходимости быть главным действующим лицом.",ask:"Когда здесь мне хочется проявиться, а когда комфортно оставаться в стороне?"},
+ "Луна":{title:"Чувства, привычки и ощущение дома",theme:"эмоциональные реакции, привычный уклад, близость и потребность в уюте",more:"Внимание может чаще возвращаться к самочувствию, близким и бытовому комфорту. Например, станет важнее, с кем вы живёте, как отдыхаете и где чувствуете себя в безопасности.",less:"Вопросы привычного уклада и эмоционального комфорта могут реже оказываться в центре внимания. Это не означает, что чувства или потребность в близости исчезают.",ask:"Какие привычки и условия помогают мне чувствовать себя здесь дома?"},
+ "Меркурий":{title:"Общение, обучение и обмен идеями",theme:"речь, любопытство, учёбу, переписку и обмен информацией",more:"Может захотеться больше знакомиться, учиться, писать или обсуждать идеи. Обратите внимание, появились ли в вашей реальной жизни новые поводы для общения и обучения.",less:"Постоянный обмен информацией может занимать меньше внимания. Возможно, вам сейчас ближе вдумчивая работа над одной темой, чем множество контактов и переключений.",ask:"Здесь я чаще ищу новые контакты и знания или выбираю сосредоточенность?"},
+ "Венера":{title:"Отношения, удовольствие и вкус",theme:"симпатию, близость, удовольствие, красоту и личные предпочтения",more:"На первый план могут выходить отношения и вопрос «что мне нравится?». Например, захочется внимательнее выбирать окружение, обустраивать пространство или находить приятные занятия.",less:"Отношения, эстетика и поиск удовольствия могут реже определять текущие решения. Способность любить и замечать красоту от этого не становится меньше.",ask:"Какие отношения и простые удовольствия я выбираю здесь для себя?"},
+ "Марс":{title:"Инициатива, действия и личные границы",theme:"напор, готовность начинать, конкуренцию и защиту своих границ",more:"Может чаще возникать желание действовать сразу, отстаивать своё или браться за сложную задачу. Посмотрите, где эта готовность помогает, а где приводит к спешке.",less:"Необходимость добиваться, спорить или всё время начинать новое может меньше занимать внимание. Это не оценка вашей силы или работоспособности.",ask:"В каких ситуациях здесь я действую смелее, а в каких выбираю спокойный темп?"},
+ "Юпитер":{title:"Новые возможности и расширение кругозора",theme:"обучение, большие замыслы, путешествия, убеждения и поиск возможностей",more:"Может стать интереснее выходить за пределы знакомого: учиться, знакомиться с другой культурой или думать о более масштабных проектах. Это тема для наблюдения, а не обещание удачи.",less:"Стремление постоянно расширять планы может уступать место работе с тем, что уже есть. Сравните, хочется ли вам здесь больше пробовать новое или углубляться в освоенное.",ask:"Какие возможности я действительно использую, а какие остаются красивыми планами?"},
+ "Сатурн":{title:"Обязанности, порядок и долгие задачи",theme:"ответственность, ограничения, дисциплину и работу на долгий срок",more:"Могут сильнее занимать вопросы обязательств и организации жизни. Например, захочется выстроить режим, определить границы ответственности или последовательно завершать сложную работу.",less:"Тема постоянного долга и контроля может меньше занимать внимание. Проверьте по опыту, стало ли легче менять планы или позволять себе отдых; карта не говорит, что реальные обязанности исчезли.",ask:"Что здесь требует моей дисциплины, а где я могу обойтись без лишнего контроля?"},
+ "Уран":{title:"Свобода, перемены и эксперименты",theme:"самостоятельность, необычные решения, обновление и выход из привычных правил",more:"Может чаще хотеться менять распорядок, пробовать новые форматы работы или поступать по-своему. Посмотрите, где эксперимент даёт полезный опыт, а где хочется устойчивости.",less:"Потребность постоянно что-то менять может меньше определять ваши решения. Возможно, привычный ритм теперь ощущается комфортнее; любопытство и самостоятельность при этом остаются вашими возможностями.",ask:"Где здесь мне нужна свобода менять правила, а где подходит постоянство?"},
+ "Нептун":{title:"Воображение, вдохновение и неопределённость",theme:"воображение, сопереживание, вдохновение и ситуации, в которых трудно отделить ожидания от фактов",more:"В этой трактовке заметнее становятся впечатления и тонкие ощущения. Например, могут сильнее увлекать музыка, образы и мечты; в неясной ситуации полезно замечать, что вы чувствуете, а что действительно знаете.",less:"В этой трактовке мечты, сильные впечатления и неопределённые ожидания меньше определяют общий ход жизни. Возможный пример: легче вернуться от воодушевляющей идеи к конкретному вопросу «что мы делаем и о чём договорились?». Это не означает исчезновения чувствительности, творчества или вдохновения.",ask:"Мне здесь легче различать свои ожидания и реальные договорённости? Когда вдохновение помогает, а когда отвлекает?"},
+ "Плутон":{title:"Контроль, влияние и глубокие перемены",theme:"отношение к власти и контролю, сильную вовлечённость и пересмотр привычных способов жить",more:"Может чаще возникать желание разобраться в скрытых причинах происходящего, пересмотреть важные отношения или понять, на что вы реально влияете. Карта не предсказывает кризис.",less:"Вопросы контроля и необходимости всё глубоко перестраивать могут реже занимать центральное место. Сравните, стало ли проще оставлять некоторые вещи как есть и выбирать, куда вкладывать силы.",ask:"Что здесь я стараюсь контролировать и что готов(а) отпустить?"}
+};
+var RELOC_AREAS=['','самопрезентация и личная инициатива','личные деньги, вещи и ощущение опоры','повседневное общение, обучение и ближайшее окружение','дом, семья и личное пространство','творчество, увлечения и удовольствие','повседневная работа, режим и забота о себе','близкие отношения, сотрудничество и договорённости','общие деньги, доверие и ситуации перемен','обучение, путешествия и взгляды на жизнь','профессиональные цели, ответственность и репутация','друзья, сообщества и совместные планы','уединение, отдых и внутренняя работа'];
 function relocChanges(v){
-  var b=v._base,h='<div class="card reloc"><h3 style="margin-top:0">Что изменило место проживания</h3>';
+  var b=v._base,h='<div class="card reloc"><span class="paper-label">Два места — два контекста</span><h3 style="margin-top:6px">Что сравнить в своей жизни после переезда</h3><p class="small">Ниже — астрологическая трактовка различий между картой места рождения и выбранного места. Это возможные темы для наблюдения: сам переезд не гарантирует таких изменений. Сравнивайте с тем, что вы действительно замечаете в себе и в условиях своей жизни.</p>';
   var ab=Math.floor(b.cusps[1]/30),an=Math.floor(v.cusps[1]/30),mb=Math.floor(b.cusps[10]/30),mn=Math.floor(v.cusps[10]/30);
-  h+='<p><b>Асцендент:</b> '+fmt(b.cusps[1])+' → <b>'+fmt(v.cusps[1])+'</b>'+(ab!==an?' — сменился знак: снаружи человек теперь проявляется '+SM[an]+' (раньше — '+SM[ab]+').':' — знак тот же, сдвинулся градус.')+'</p>';
-  h+='<p><b>Середина неба:</b> '+fmt(b.cusps[10])+' → <b>'+fmt(v.cusps[10])+'</b>'+(mb!==mn?' — сменился знак: призвание и роль в обществе здесь окрашены манерой «'+SM[mn]+'».':'.')+'</p>';
-  var moves=[],ang=[];Object.keys(BASE).forEach(function(p){var x=b.natal.det[p],y=v.natal.det[p];
-    if(x.house!==y.house)moves.push('<b>'+p+'</b> ('+ROLE[p]+'): '+x.house+' дом → '+y.house+' дом — теперь '+HOUSE_V[y.house].split(':')[0]);
+  function contrast(title,oldText,newText,question,technical){return '<div class="reloc-item"><h4>'+title+'</h4><div class="reloc-compare"><div><span>В карте места рождения</span><p>'+oldText+'</p></div><div><span>В карте выбранного места</span><p>'+newText+'</p></div></div><p class="reloc-question"><b>Сравните по опыту:</b> '+question+'</p><details class="reloc-tech"><summary>Астрологические данные</summary><p>'+technical+'</p></details></div>'}
+  h+=contrast('Как вы начинаете общение и проявляете себя', 'Описывается манера действовать '+SM[ab]+'.',ab===an?'Общая манера остаётся той же. В этой части карта не даёт основания говорить о смене стиля общения.':'В трактовке нового места акцент на манере действовать '+SM[an]+'.','С незнакомыми людьми я веду себя иначе? Что стало легче, а что зависит от окружения?', 'Асцендент — точка карты, которую в астрологии связывают с самопрезентацией: '+fmt(b.cusps[1])+' → '+fmt(v.cusps[1])+'.');
+  h+=contrast('Как вы строите своё дело и общественную роль','Профессиональные цели и проявление среди людей описываются через манеру действовать '+SM[mb]+'.',mb===mn?'Общий акцент сохраняется. Другие отличия могут относиться к отдельным занятиям и обстоятельствам.':'В трактовке нового места эти темы описываются через манеру действовать '+SM[mn]+'.','Как я здесь работаю, беру ответственность и показываю результаты? Что изменилось на практике?', 'Середина неба — точка, которую в астрологии связывают с общественной и профессиональной ролью: '+fmt(b.cusps[10])+' → '+fmt(v.cusps[10])+'.');
+  var moves=[],ang=[];
+  Object.keys(BASE).forEach(function(p){var x=b.natal.det[p],y=v.natal.det[p],t=RELOC_TOPICS[p];
+    if(x.house!==y.house)moves.push(contrast(p+': '+t.title.toLowerCase(),'Тема планеты связана со сферой: <b>'+RELOC_AREAS[x.house]+'</b>.','Та же тема связана со сферой: <b>'+RELOC_AREAS[y.house]+'</b>.','Тема «'+t.title.toLowerCase()+'» сейчас чаще проявляется в какой из этих сфер? Вспомните конкретный эпизод в каждой: где эта тема действительно занимает больше вашего внимания?','«Дом» в астрологии означает сферу жизни. '+p+': '+x.house+' дом → '+y.house+' дом. Смысл планеты в этом разделе: '+t.theme+'.'));
     var nb=Math.min(sep(x.lon,b.cusps[1]),sep(x.lon,b.cusps[4]),sep(x.lon,b.cusps[7]),sep(x.lon,b.cusps[10])),nn=Math.min(sep(y.lon,v.cusps[1]),sep(y.lon,v.cusps[4]),sep(y.lon,v.cusps[7]),sep(y.lon,v.cusps[10]));
-    if(nn<=5&&nb>5)ang.push('<b>'+p+'</b> встал на угол карты — здесь эта планета звучит громко, её тема выходит на первый план');
-    if(nb<=5&&nn>5)ang.push('<b>'+p+'</b> ушёл с угла — здесь его тема звучит тише, чем на родине')});
-  if(ang.length)h+='<p><b>Угловые планеты:</b></p><ul class="rl">'+ang.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>';
-  if(moves.length)h+='<p><b>Планеты сменили дома:</b></p><ul class="rl">'+moves.map(function(x){return'<li>'+x+'</li>'}).join('')+'</ul>';
-  h+='<p class="small">Релокация меняет дома и углы. Положения планет и личные отметки сохраняются; домовой контекст и подбор проводников могут измениться.</p></div>';
-  return h;
+    if((nn<=5&&nb>5)||(nb<=5&&nn>5)){var more=nn<=5;
+      ang.push('<details class="reloc-explanation"'+(p==='Нептун'?' open':'')+'><summary><b>'+p+' · '+t.title+'</b><span>'+(more?'Больше внимания к этой теме':'Меньше акцента на этой теме')+' — в трактовке выбранного места</span></summary><div><p><b>О чём речь:</b> в астрологии '+p+' связывают с такими темами, как '+t.theme+'.</p><p><b>В чём возможная разница:</b> '+(more?t.more:t.less)+'</p><p class="reloc-question"><b>Сравните по опыту:</b> '+t.ask+'</p><details class="reloc-tech"><summary>Почему карта предлагает такую трактовку?</summary><p>Четыре «угла» — основные точки астрологической карты. Близость к ним считается акцентом на теме планеты. В карте места рождения ближайшая такая точка находится в '+nb.toFixed(1)+'°, в выбранном месте — в '+nn.toFixed(1)+'°. Исходная формула отмечает близость до 5°. Это правило трактовки, а не измерение вашей чувствительности, силы или способностей.</p></details></div></details>');
+    }
+  });
+  h+='<h4 class="reloc-subheading">Какие темы получают другой акцент</h4>'+(ang.length?ang.join(''):'<p class="small">По этому правилу формулы новых акцентов не обнаружено. Это не означает, что в вашей жизни ничего не меняется.</p>');
+  h+='<details class="reloc-areas"><summary><b>В каких сферах могут проявляться эти темы</b><span>Сравнить контекст каждой планеты</span></summary>'+ (moves.length?moves.join(''):'<p>Распределение планет по сферам в этих двух картах совпадает.</p>')+'</details>';
+  h+='<p class="small">Положения планет и ваши личные отметки сохраняются. Меняются их связи с местным горизонтом и распределение по сферам жизни. Наблюдения можно записать в разделе «Мои наблюдения».</p></div>';return h;
 }
 function modeBar(list){if(!list.some(function(x){return x.r.reloc}))return'';
   return'<div class="seg" role="group" aria-label="Карта"><button type="button" data-m="birth" aria-pressed="'+(MODE==='birth')+'">Место рождения</button><button type="button" data-m="reloc" aria-pressed="'+(MODE==='reloc')+'">Место проживания</button></div>'}
@@ -1463,9 +1540,9 @@ function organizeReading(){
   var hints={'Звуковой образ':'Послушать карту','Мои наблюдения':'Отметить, что узнаю в себе','Личные акценты планет':'Выбрать, что рассмотреть первым','Почерк каждого вектора':'Планеты, знаки и связи','Справочник восьми тем':'Проявления в быту, работе и отношениях','Узлы карты':'Конфигурации и аспекты','Расчётные точки':'Дополнительные детали','Планеты':'Точные положения и дома'};
   containers.forEach(function(parent){
     var headings=[].filter.call(parent.children,function(x){return x.tagName==='H2'});
-    headings.forEach(function(h){var title=h.textContent,box=document.createElement('details'),summary=document.createElement('summary'),label=document.createElement('span'),hint=document.createElement('small'),body=document.createElement('div');box.className='reading-section';box.dataset.section=title;label.textContent=title;hint.textContent=hints[title]||'Открыть подробности';summary.append(label,hint);box.append(summary,body);body.className='section-content';parent.insertBefore(box,h);var n=h.nextSibling;h.remove();while(n&&!(n.nodeType===1&&n.tagName==='H2')){var next=n.nextSibling;body.appendChild(n);n=next}if(title==='Мои наблюдения')box.open=true;
+    headings.forEach(function(h){var title=h.textContent,box=document.createElement('details'),summary=document.createElement('summary'),label=document.createElement('span'),hint=document.createElement('small'),body=document.createElement('div');box.className='reading-section';box.dataset.section=title;label.textContent=title;hint.textContent=hints[title]||'Открыть подробности';summary.append(label,hint);box.append(summary,body);body.className='section-content';parent.insertBefore(box,h);var n=h.nextSibling;h.remove();while(n&&!(n.nodeType===1&&n.tagName==='H2')){var next=n.nextSibling;body.appendChild(n);n=next}if(['Расчётная связка векторов','Почерк каждого вектора','Планеты','Ваши связки рядом','Радуга: одни векторы — разные цвета'].indexOf(title)>=0)box.open=true;
     });
-    parent.querySelectorAll('.sig').forEach(function(sig){var heading=sig.querySelector('.sh');if(!heading)return;var details=document.createElement('details'),sum=document.createElement('summary'),title=heading.querySelector('.sn');details.className='reading-detail';sum.textContent=title?title.textContent:'Проводники';sig.parentNode.insertBefore(details,sig);details.append(sum,sig)});
+    parent.querySelectorAll('.sig').forEach(function(sig){var heading=sig.querySelector('.sh');if(!heading)return;var details=document.createElement('details'),sum=document.createElement('summary'),title=heading.querySelector('.sn');details.className='reading-detail';sum.textContent=title?title.textContent:'Проводники';sig.parentNode.insertBefore(details,sig);details.append(sum,sig);var section=details.closest('.reading-section');if(sig===parent.querySelector('.sig')||(section&&section.dataset.section==='Почерк каждого вектора'&&details===section.querySelector('.reading-detail')))details.open=true});
     parent.querySelectorAll('.vec').forEach(function(vec){var heading=vec.querySelector('h3');if(!heading)return;var details=document.createElement('details'),sum=document.createElement('summary');details.className='reading-detail';sum.textContent=heading.textContent;vec.parentNode.insertBefore(details,vec);details.append(sum,vec)});
   });
 }
